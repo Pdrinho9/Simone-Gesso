@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema PLAC Drywall - Edição Luxo</title>
+    <title>PLAC Drywall - Gestão Nuvem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,58 +13,49 @@
             background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%);
             background-attachment: fixed;
             min-height: 100vh;
+            color: white;
         }
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
         }
         .sidebar-item:hover { background: rgba(255,255,255,0.1); }
         .active-tab { background: rgba(255,255,255,0.15); border-left: 4px solid #3b82f6; }
-        input, select { background: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
-        tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .btn-edit { color: #60a5fa; margin-right: 12px; }
-        .btn-edit:hover { color: #93c5fd; }
+        input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
     </style>
 </head>
-<body class="text-white font-sans">
+<body>
 
-    <div id="login-overlay" style="display: flex; position: fixed; inset: 0; background: var(--plac-blue); align-items: center; justify-content: center; z-index: 9999;">
-        <div class="glass p-10 w-96 text-center shadow-2xl">
-            <img src="logo.png" alt="Logo Plac" class="w-40 mx-auto mb-6">
-            <h1 class="text-xl font-bold mb-8 tracking-widest uppercase">Painel Administrativo</h1>
-            <div class="space-y-4">
-                <input type="text" id="loginUser" placeholder="Usuário" class="w-full p-4 rounded-xl outline-none">
-                <input type="password" id="loginPass" placeholder="Senha" class="w-full p-4 rounded-xl outline-none">
-                <button type="button" onclick="efetuarLogin()" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-black uppercase">Entrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-content" style="display: none;" class="h-screen overflow-hidden flex">
+    <div id="app-content" class="h-screen overflow-hidden flex">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-6 border-b border-white/10 mb-4 text-center"><img src="logo.png" class="w-32 mx-auto"></div>
+            <div class="p-6 border-b border-white/10 mb-4 text-center">
+                <img src="logo.png" class="w-32 mx-auto" alt="PLAC DRYWALL">
+            </div>
             <nav class="flex-1 px-4 space-y-2">
-                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item active-tab w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-chart-pie mr-3"></i> Dashboard</button>
-                <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item active-tab w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
+                <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-shopping-cart mr-3"></i> PDV / Vendas</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-boxes mr-3"></i> Estoque</button>
-                <button onclick="showTab('nfe')" id="btn-nfe" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-file-invoice mr-3"></i> Notas</button>
+                <button onclick="showTab('nfe')" id="btn-nfe" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-file-invoice mr-3"></i> Notas Fiscais</button>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
-            <header class="glass p-5 px-8 flex justify-between items-center mb-4 text-blue-400 font-black uppercase tracking-widest" id="tab-title">Dashboard</header>
+            <header class="glass p-5 px-8 flex justify-between items-center mb-4">
+                <h1 id="tab-title" class="text-lg font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
+                <div id="status-cloud" class="text-[9px] font-bold text-green-400 uppercase flex items-center">
+                    <i class="fas fa-cloud mr-2"></i> Conectado ao Firebase
+                </div>
+            </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
-                
-                <section id="tab-dashboard" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
-                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Produtos</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
-                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
+                <section id="tab-dashboard">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Totais</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Itens em Estoque</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
                     <div class="glass p-8 h-80"><canvas id="vendasChart"></canvas></div>
                 </section>
@@ -75,7 +66,7 @@
                         <input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
                         <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none">
                         <input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
-                        <button id="btnSalvarProd" onclick="salvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar</button>
+                        <button id="btnSalvarProd" onclick="salvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar Produto</button>
                     </div>
                     <table class="w-full text-left">
                         <tbody id="corpoEstoque"></tbody>
@@ -86,7 +77,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                         <input type="hidden" id="editCliId">
                         <input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliWhats" placeholder="WhatsApp (Somente números)" class="p-4 rounded-xl outline-none">
+                        <input type="text" id="cliWhats" placeholder="WhatsApp (DDD + Número)" class="p-4 rounded-xl outline-none">
                         <button id="btnSalvarCli" onclick="salvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Salvar Cliente</button>
                     </div>
                     <table class="w-full text-left">
@@ -97,18 +88,18 @@
                 <section id="tab-pdv" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-8 space-y-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <select id="pdvCliente" class="p-4 rounded-xl outline-none"></select>
-                            <select id="pdvSelect" class="p-4 rounded-xl outline-none"></select>
+                            <select id="pdvCliente" class="p-4 rounded-xl outline-none font-bold text-xs"></select>
+                            <select id="pdvSelect" class="p-4 rounded-xl outline-none font-bold text-xs"></select>
                         </div>
                         <div class="flex gap-4">
                             <input type="number" id="pdvQtd" value="1" min="1" class="w-24 p-4 rounded-xl text-center">
-                            <button onclick="adicionarAoCarrinho()" class="flex-1 bg-blue-600 font-black uppercase text-xs rounded-xl">Lançar</button>
+                            <button onclick="adicionarAoCarrinho()" class="flex-1 bg-blue-600 font-black uppercase text-xs rounded-xl">Adicionar Item</button>
                         </div>
                         <table class="w-full text-xs mt-4"><tbody id="carrinhoItens"></tbody></table>
                     </div>
-                    <div class="glass p-8 flex flex-col justify-between bg-blue-600/20">
+                    <div class="glass p-8 flex flex-col justify-between bg-blue-600/10">
                         <h2 class="text-5xl font-black">R$ <span id="pdvTotal">0,00</span></h2>
-                        <button onclick="finalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase tracking-tighter shadow-lg">Finalizar</button>
+                        <button onclick="finalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg">Finalizar Venda</button>
                     </div>
                 </section>
 
@@ -117,166 +108,174 @@
         </main>
     </div>
 
-    <script>
-        let produtos = JSON.parse(localStorage.getItem('plac_estoque')) || [{id: 1, nome: "Chapa Drywall ST 12.5mm", qtd: 150, preco: 34.90}];
-        let clientes = JSON.parse(localStorage.getItem('plac_clientes')) || [{id: 1, nome: "Consumidor Final", whats: "00000000000"}];
-        let vendas = JSON.parse(localStorage.getItem('plac_vendas')) || [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBeL1Lbq71SfKoZQ4G26aZFPsiS5IFL9I",
+            authDomain: "sistema-plac.firebaseapp.com",
+            projectId: "sistema-plac",
+            storageBucket: "sistema-plac.firebasestorage.app",
+            messagingSenderId: "54513790116",
+            appId: "1:54513790116:web:77d0722e5a8b8b10dfca31",
+            measurementId: "G-KGE800YQHV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // VARIÁVEIS LOCAIS
+        let produtos = [];
+        let clientes = [];
+        let vendas = [];
         let carrinho = [];
         let myChart;
 
-        function efetuarLogin() {
-            if(document.getElementById('loginUser').value === 'admin' && document.getElementById('loginPass').value === '123') {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-content').style.display = 'flex';
-                initSystem();
-            }
+        // CARREGAR DADOS DO FIREBASE
+        async function carregarTudo() {
+            const prodSnap = await getDocs(collection(db, "produtos"));
+            produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            const cliSnap = await getDocs(collection(db, "clientes"));
+            clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
+            vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            renderEstoque();
+            renderClientes();
+            renderPDV();
+            renderNfe();
+            atualizarDash();
         }
 
-        function showTab(tab) {
+        // SALVAR PRODUTO
+        window.salvarProduto = async () => {
+            const id = document.getElementById('editProdId').value;
+            const dados = {
+                nome: document.getElementById('estNome').value,
+                qtd: parseInt(document.getElementById('estQtd').value),
+                preco: parseFloat(document.getElementById('estPreco').value)
+            };
+
+            if(id) {
+                await updateDoc(doc(db, "produtos", id), dados);
+            } else {
+                await addDoc(collection(db, "produtos"), dados);
+            }
+            limparFormProd();
+            carregarTudo();
+        }
+
+        // SALVAR CLIENTE
+        window.salvarCliente = async () => {
+            const id = document.getElementById('editCliId').value;
+            const dados = {
+                nome: document.getElementById('cliNome').value,
+                whats: document.getElementById('cliWhats').value
+            };
+
+            if(id) {
+                await updateDoc(doc(db, "clientes", id), dados);
+            } else {
+                await addDoc(collection(db, "clientes"), dados);
+            }
+            limparFormCli();
+            carregarTudo();
+        }
+
+        // FINALIZAR VENDA
+        window.finalizarVenda = async () => {
+            if(carrinho.length === 0) return;
+            const venda = {
+                cliente: document.getElementById('pdvCliente').value,
+                total: carrinho.reduce((a,b) => a + b.subtotal, 0),
+                data: new Date().toISOString()
+            };
+
+            await addDoc(collection(db, "vendas"), venda);
+            
+            // Atualizar estoque no Firebase
+            for(let item of carrinho) {
+                const p = produtos.find(x => x.id === item.id);
+                await updateDoc(doc(db, "produtos", p.id), { qtd: p.qtd - item.qtdVenda });
+            }
+
+            carrinho = [];
+            renderCarrinho();
+            showTab('dashboard');
+            carregarTudo();
+        }
+
+        // FUNÇÕES DE UI (REDEFINIDAS PARA O ESCOPO MODULE)
+        window.showTab = (tab) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tab).classList.remove('hidden');
             document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('btn-' + tab).classList.add('active-tab');
             document.getElementById('tab-title').innerText = tab.toUpperCase();
-            if(tab === 'estoque') renderEstoque();
-            if(tab === 'clientes') renderClientes();
-            if(tab === 'pdv') renderPDV();
-            if(tab === 'nfe') renderNfe();
-            atualizarDash();
-        }
+            if(tab === 'dashboard') atualizarDash();
+        };
 
-        // --- LÓGICA DE CLIENTES (COM EDITAR) ---
-        function salvarCliente() {
-            const id = document.getElementById('editCliId').value;
-            const nome = document.getElementById('cliNome').value;
-            const whats = document.getElementById('cliWhats').value;
-            if(!nome || !whats) return alert("Preencha tudo!");
-
-            if(id) { // Editando
-                const index = clientes.findIndex(c => c.id == id);
-                clientes[index] = { id: parseInt(id), nome, whats };
-                document.getElementById('editCliId').value = '';
-                document.getElementById('btnSalvarCli').innerText = "Salvar Cliente";
-            } else { // Novo
-                clientes.push({id: Date.now(), nome, whats});
-            }
-            
-            localStorage.setItem('plac_clientes', JSON.stringify(clientes));
-            document.getElementById('cliNome').value = ''; document.getElementById('cliWhats').value = '';
-            renderClientes();
-        }
-
-        function editCliente(id) {
-            const cli = clientes.find(c => c.id == id);
-            document.getElementById('editCliId').value = cli.id;
-            document.getElementById('cliNome').value = cli.nome;
-            document.getElementById('cliWhats').value = cli.whats;
-            document.getElementById('btnSalvarCli').innerText = "Atualizar Cadastro";
+        function renderEstoque() {
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
+                <tr class="hover:bg-white/5 transition border-b border-white/5">
+                    <td class="p-4 uppercase font-bold text-xs">${p.nome}</td>
+                    <td class="p-4"><span class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-lg">${p.qtd} UN</span></td>
+                    <td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="prepararEditProd('${p.id}')" class="text-blue-400 mr-4"><i class="fas fa-edit"></i></button>
+                        <button onclick="deletarItem('produtos', '${p.id}')" class="text-red-400/50"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function renderClientes() {
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="hover:bg-white/5">
+                <tr class="hover:bg-white/5 border-b border-white/5">
                     <td class="p-4 uppercase font-bold text-xs">${c.nome}</td>
-                    <td class="p-4 text-center text-blue-300">${c.whats}</td>
+                    <td class="p-4 text-center text-blue-300 font-bold">${c.whats}</td>
                     <td class="p-4 text-right">
-                        <button onclick="editCliente(${c.id})" class="btn-edit"><i class="fas fa-edit"></i></button>
+                        <button onclick="prepararEditCli('${c.id}')" class="text-blue-400 mr-4"><i class="fas fa-edit"></i></button>
                         <a href="https://wa.me/55${c.whats}" target="_blank" class="text-green-400 mr-4"><i class="fab fa-whatsapp"></i></a>
-                        <button onclick="removerItem('cli', ${c.id})" class="text-red-400/50"><i class="fas fa-trash"></i></button>
+                        <button onclick="deletarItem('clientes', '${c.id}')" class="text-red-400/50"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // --- LÓGICA DE ESTOQUE (COM EDITAR) ---
-        function salvarProduto() {
-            const id = document.getElementById('editProdId').value;
-            const nome = document.getElementById('estNome').value;
-            const qtd = parseInt(document.getElementById('estQtd').value);
-            const preco = parseFloat(document.getElementById('estPreco').value);
-
-            if(id) {
-                const index = produtos.findIndex(p => p.id == id);
-                produtos[index] = { id: parseInt(id), nome, qtd, preco };
-                document.getElementById('editProdId').value = '';
-                document.getElementById('btnSalvarProd').innerText = "Salvar";
-            } else {
-                produtos.push({id: Date.now(), nome, qtd, preco});
-            }
-            localStorage.setItem('plac_estoque', JSON.stringify(produtos));
-            renderEstoque();
-            document.getElementById('estNome').value = ''; document.getElementById('estQtd').value = ''; document.getElementById('estPreco').value = '';
-        }
-
-        function editProd(id) {
-            const prod = produtos.find(p => p.id == id);
-            document.getElementById('editProdId').value = prod.id;
-            document.getElementById('estNome').value = prod.nome;
-            document.getElementById('estQtd').value = prod.qtd;
-            document.getElementById('estPreco').value = prod.preco;
-            document.getElementById('btnSalvarProd').innerText = "Atualizar Produto";
-        }
-
-        function renderEstoque() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="hover:bg-white/5">
-                    <td class="p-4 uppercase font-bold text-xs">${p.nome}</td>
-                    <td class="p-4"><span class="bg-blue-500/10 text-blue-400 px-2 py-1 rounded-lg">${p.qtd} UN</span></td>
-                    <td class="p-4">R$ ${p.preco.toFixed(2)}</td>
-                    <td class="p-4 text-right">
-                        <button onclick="editProd(${p.id})" class="btn-edit"><i class="fas fa-edit"></i></button>
-                        <button onclick="removerItem('prod', ${p.id})" class="text-red-400/50"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // --- PDV E NOTAS ---
         function renderPDV() {
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco}</option>`).join('');
         }
 
-        function adicionarAoCarrinho() {
-            const p = produtos.find(item => item.id == document.getElementById('pdvSelect').value);
+        window.adicionarAoCarrinho = () => {
+            const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
             const qtd = parseInt(document.getElementById('pdvQtd').value);
             if(p && qtd <= p.qtd) {
                 carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
                 renderCarrinho();
-            } else { alert("Sem estoque!"); }
-        }
+            } else { alert("Estoque insuficiente!"); }
+        };
 
         function renderCarrinho() {
             let t = 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
                 t += c.subtotal;
-                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="carrinho.splice(${i},1);renderCarrinho();">×</td></tr>`;
+                return `<tr class="border-b border-white/5"><td class="py-3 uppercase font-bold">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="removerCarrinho(${i})">×</td></tr>`;
             }).join('');
             document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ',');
         }
 
-        function finalizarVenda() {
-            if(carrinho.length === 0) return;
-            const cliente = document.getElementById('pdvCliente').value;
-            const total = carrinho.reduce((acc, item) => acc + item.subtotal, 0);
-            carrinho.forEach(item => { const prod = produtos.find(p => p.id == item.id); if(prod) prod.qtd -= item.qtdVenda; });
-            vendas.unshift({ id: 'NF' + Math.floor(1000 + Math.random() * 9000), cliente, total, data: new Date().toLocaleString('pt-BR') });
-            localStorage.setItem('plac_estoque', JSON.stringify(produtos)); localStorage.setItem('plac_vendas', JSON.stringify(vendas));
-            carrinho = []; renderCarrinho(); alert("Venda realizada!"); showTab('dashboard');
-        }
-
         function renderNfe() {
-            document.getElementById('listaNfe').innerHTML = vendas.map(v => `<div class="glass p-6 flex justify-between"><div><b class="text-blue-400">#${v.id} - ${v.cliente}</b><br><small class="opacity-30">${v.data}</small></div><b>R$ ${v.total.toFixed(2)}</b></div>`).join('');
-        }
-
-        // --- UTILS ---
-        function removerItem(tipo, id) {
-            if(!confirm("Tem certeza?")) return;
-            if(tipo === 'cli') clientes = clientes.filter(c => c.id != id);
-            else produtos = produtos.filter(p => p.id != id);
-            localStorage.setItem(tipo === 'cli' ? 'plac_clientes' : 'plac_estoque', JSON.stringify(tipo === 'cli' ? clientes : produtos));
-            tipo === 'cli' ? renderClientes() : renderEstoque();
-            atualizarDash();
+            document.getElementById('listaNfe').innerHTML = vendas.map(v => `
+                <div class="glass p-6 flex justify-between items-center">
+                    <div><b class="text-blue-400 uppercase"># ${v.cliente}</b><br><small class="opacity-40 text-[9px] font-black">${new Date(v.data).toLocaleString('pt-BR')}</small></div>
+                    <b class="text-xl">R$ ${v.total.toFixed(2)}</b>
+                </div>
+            `).join('');
         }
 
         function atualizarDash() {
@@ -287,6 +286,46 @@
             updateChart();
         }
 
+        // SISTEMA DE EDIÇÃO E DELETE
+        window.prepararEditProd = (id) => {
+            const p = produtos.find(x => x.id === id);
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('estNome').value = p.nome;
+            document.getElementById('estQtd').value = p.qtd;
+            document.getElementById('estPreco').value = p.preco;
+            document.getElementById('btnSalvarProd').innerText = "Atualizar";
+        };
+
+        window.prepararEditCli = (id) => {
+            const c = clientes.find(x => x.id === id);
+            document.getElementById('editCliId').value = c.id;
+            document.getElementById('cliNome').value = c.nome;
+            document.getElementById('cliWhats').value = c.whats;
+            document.getElementById('btnSalvarCli').innerText = "Atualizar";
+        };
+
+        window.deletarItem = async (col, id) => {
+            if(confirm("Deseja realmente excluir?")) {
+                await deleteDoc(doc(db, col, id));
+                carregarTudo();
+            }
+        };
+
+        function limparFormProd() {
+            document.getElementById('editProdId').value = '';
+            document.getElementById('estNome').value = '';
+            document.getElementById('estQtd').value = '';
+            document.getElementById('estPreco').value = '';
+            document.getElementById('btnSalvarProd').innerText = "Salvar Produto";
+        }
+
+        function limparFormCli() {
+            document.getElementById('editCliId').value = '';
+            document.getElementById('cliNome').value = '';
+            document.getElementById('cliWhats').value = '';
+            document.getElementById('btnSalvarCli').innerText = "Salvar Cliente";
+        }
+
         function updateChart() {
             const ctx = document.getElementById('vendasChart').getContext('2d');
             const ultimas = vendas.slice(0, 5).reverse();
@@ -294,17 +333,15 @@
             myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ultimas.map(v => v.id),
+                    labels: ultimas.map(v => new Date(v.data).toLocaleDateString('pt-BR')),
                     datasets: [{ label: 'Vendas', data: ultimas.map(v => v.total), borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
-        function initSystem() {
-            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
-            showTab('dashboard');
-        }
+        // INICIALIZAÇÃO
+        carregarTudo();
     </script>
 </body>
 </html>
