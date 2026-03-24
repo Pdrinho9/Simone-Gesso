@@ -15,6 +15,7 @@
             min-height: 100vh;
             color: white;
             font-family: sans-serif;
+            overflow-x: hidden;
         }
         .glass {
             background: rgba(255, 255, 255, 0.05);
@@ -22,51 +23,57 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
         }
-        .sidebar-item:hover { background: rgba(255,255,255,0.1); }
         .active-tab { background: rgba(255,255,255,0.15); border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
         
         #login-screen {
-            position: fixed; inset: 0; z-index: 100;
+            position: fixed; inset: 0; z-index: 999;
             display: flex; align-items: center; justify-content: center;
             background: #0d1b3e;
+            transition: 0.5s ease;
         }
-        .loading-spinner { display: none; }
-        .is-loading .loading-spinner { display: inline-block; }
-        .is-loading .btn-text { display: none; }
+        .sidebar-item:hover { background: rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
-            <img src="logo.png" class="w-32 mx-auto mb-8" alt="PLAC" onerror="this.src='https://via.placeholder.com/150?text=PLAC+DRYWALL'">
-            <h2 class="text-xl font-black uppercase mb-6">Acesso ao Sistema</h2>
-            <input type="password" id="passInput" placeholder="Senha" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none">
-            <button id="btnLogin" onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition">
-                <span class="btn-text">Entrar</span>
-                <i class="fas fa-spinner fa-spin loading-spinner"></i>
+            <div class="mb-6">
+                <span class="text-4xl font-black text-blue-500 tracking-tighter">PLAC</span>
+            </div>
+            <h2 class="text-xl font-bold uppercase mb-6 text-white/80 tracking-widest text-xs">Acesso ao Painel</h2>
+            <input type="password" id="passInput" placeholder="Senha de Acesso" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
+            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg shadow-blue-900/40">
+                Entrar no Sistema
             </button>
+            <p class="mt-6 text-[9px] text-white/20 uppercase tracking-[0.2em]">Criptografia de Ponta a Ponta</p>
         </div>
     </div>
 
     <div id="app-content" class="h-screen flex hidden">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-6 border-b border-white/10 mb-4 text-center">
+            <div class="p-8 border-b border-white/10 mb-4 text-center">
                 <span class="font-black text-2xl tracking-tighter text-blue-400">PLAC</span>
             </div>
             <nav class="flex-1 px-4 space-y-2">
-                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item active-tab w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-boxes mr-3"></i> Estoque</button>
             </nav>
+            
+            <div class="p-4 border-t border-white/10">
+                <button onclick="handleSair()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition">
+                    <i class="fas fa-sign-out-alt mr-3"></i> Sair do Sistema
+                </button>
+            </div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
             <header class="glass p-5 px-8 flex justify-between items-center mb-4">
                 <h1 id="tab-title" class="text-lg font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
-                <div class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-circle mr-2 animate-pulse"></i> Sistema Online</div>
+                <div id="status-cloud" class="text-[9px] font-bold text-yellow-400 uppercase tracking-widest"><i class="fas fa-sync fa-spin mr-2"></i> Sincronizando...</div>
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
@@ -82,31 +89,31 @@
                 <section id="tab-pdv" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-8 space-y-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block">1. Selecionar Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
-                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block">2. Selecionar Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">1. Selecionar Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">2. Selecionar Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
                         </div>
                         <div class="flex gap-4 items-end">
-                            <div class="w-24"><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl"><i class="fas fa-plus mr-2"></i> Lançar Item</button>
+                            <div class="w-24"><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg"><i class="fas fa-plus mr-2"></i> Lançar no Carrinho</button>
                         </div>
-                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-50 text-[10px] uppercase"><th class="pb-4 text-left">Produto</th><th class="pb-4 text-center">Qtd</th><th class="pb-4 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-[9px] uppercase text-left"><th class="pb-4">Produto</th><th class="pb-4 text-center">Qtd</th><th class="pb-4 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
                     <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
-                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total Geral</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
-                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:scale-105 transition-transform">Finalizar Venda</button>
+                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total do Pedido</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
+                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:scale-105 transition-transform active:scale-95">Finalizar Venda</button>
                     </div>
                 </section>
 
                 <section id="tab-estoque" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar</button>
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço Unit." class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar Item</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Salvar</button>
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Cadastrar</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoClientes"></tbody></table>
                 </section>
@@ -132,60 +139,55 @@
 
         let produtos = [], clientes = [], vendas = [], carrinho = [], myChart;
 
-        window.tentarLogin = async () => {
+        // LOGIN E LOGOUT
+        window.tentarLogin = () => {
             const pass = document.getElementById('passInput').value;
             if(pass === "123") {
-                const btn = document.getElementById('btnLogin');
-                btn.classList.add('is-loading');
-                btn.disabled = true;
-
-                try {
-                    await carregarTudo();
+                document.getElementById('login-screen').style.opacity = '0';
+                setTimeout(() => {
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('app-content').classList.remove('hidden');
-                    // Pequeno atraso para o Chart.js não bugar com a animação da tela
-                    setTimeout(() => atualizarDash(), 300);
-                } catch (e) {
-                    alert("Erro ao conectar com Firebase. Tente novamente.");
-                    console.error(e);
-                } finally {
-                    btn.classList.remove('is-loading');
-                    btn.disabled = false;
-                }
+                    carregarDadosIniciais();
+                }, 400);
             } else { alert("Senha incorreta!"); }
         };
 
-        async function carregarTudo() {
-            const prodSnap = await getDocs(collection(db, "produtos"));
-            produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-            if (produtos.length === 0) {
-                await criarExemplos();
-                return carregarTudo(); 
+        window.handleSair = () => {
+            if(confirm("Deseja realmente sair do sistema?")) {
+                document.getElementById('passInput').value = "";
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-content').classList.add('hidden');
+                setTimeout(() => { document.getElementById('login-screen').style.opacity = '1'; }, 10);
             }
+        };
 
-            const cliSnap = await getDocs(collection(db, "clientes"));
-            clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
+        async function carregarDadosIniciais() {
             try {
-                const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
-                vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            } catch (e) { vendas = []; }
+                const prodSnap = await getDocs(collection(db, "produtos"));
+                produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            renderTudo();
-        }
+                const cliSnap = await getDocs(collection(db, "clientes"));
+                clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        async function criarExemplos() {
-            const exProds = [{nome: "Chapa Drywall ST 12.5mm", qtd: 50, preco: 34.90}, {nome: "Perfil Montante 70mm", qtd: 100, preco: 22.50}];
-            const exClis = [{nome: "Cliente de Teste", whats: "11999999999"}];
-            for(let p of exProds) await addDoc(collection(db, "produtos"), p);
-            for(let c of exClis) await addDoc(collection(db, "clientes"), c);
+                try {
+                    const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
+                    vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                } catch (e) { vendas = []; }
+
+                document.getElementById('status-cloud').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Online';
+                document.getElementById('status-cloud').className = 'text-[9px] font-bold text-green-400 uppercase tracking-widest';
+                
+                renderTudo();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('status-cloud').innerHTML = '<i class="fas fa-wifi mr-2"></i> Erro Sinc';
+            }
         }
 
         window.showTab = (tab) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
+            document.querySelectorAll('aside button').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('btn-' + tab).classList.add('active-tab');
             document.getElementById('tab-title').innerText = tab.toUpperCase();
             if(tab === 'dashboard') atualizarDash();
@@ -195,23 +197,24 @@
             const id = document.getElementById('editProdId').value;
             const dados = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value), preco: parseFloat(document.getElementById('estPreco').value) };
             id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
-            limparForms(); await carregarTudo();
+            limparForms(); await carregarDadosIniciais();
         };
 
         window.handleSalvarCliente = async () => {
             const id = document.getElementById('editCliId').value;
             const dados = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value };
             id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
-            limparForms(); await carregarTudo();
+            limparForms(); await carregarDadosIniciais();
         };
 
         window.handleAdicionarAoCarrinho = () => {
-            const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
+            const select = document.getElementById('pdvSelect');
+            const p = produtos.find(item => item.id === select.value);
             const qtd = parseInt(document.getElementById('pdvQtd').value);
             if(p && qtd <= p.qtd) {
                 carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
                 renderCarrinho();
-            } else { alert("Estoque insuficiente!"); }
+            } else { alert("Selecione um produto ou verifique o estoque!"); }
         };
 
         window.handleFinalizarVenda = async () => {
@@ -222,11 +225,11 @@
                 const p = produtos.find(x => x.id === item.id);
                 await updateDoc(doc(db, "produtos", p.id), { qtd: p.qtd - item.qtdVenda });
             }
-            carrinho = []; await carregarTudo(); showTab('dashboard');
+            carrinho = []; await carregarDadosIniciais(); showTab('dashboard');
         };
 
         window.handleDeletar = async (col, id) => {
-            if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); await carregarTudo(); }
+            if(confirm("Excluir item permanentemente?")) { await deleteDoc(doc(db, col, id)); await carregarDadosIniciais(); }
         };
 
         window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
@@ -269,7 +272,7 @@
 
         function updateChart() {
             const ctx = document.getElementById('vendasChart');
-            if(!ctx || document.getElementById('app-content').classList.contains('hidden')) return;
+            if(!ctx) return;
             const ultimas = vendas.slice(0, 5).reverse();
             if(myChart) myChart.destroy();
             myChart = new Chart(ctx.getContext('2d'), {
