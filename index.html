@@ -15,7 +15,6 @@
             min-height: 100vh;
             color: white;
             font-family: sans-serif;
-            overflow: hidden;
         }
         .glass {
             background: rgba(255, 255, 255, 0.05);
@@ -26,116 +25,91 @@
         .sidebar-item:hover { background: rgba(255,255,255,0.1); }
         .active-tab { background: rgba(255,255,255,0.15); border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
-        .loading-overlay { position: fixed; inset: 0; background: #0d1b3e; z-index: 100; display: flex; align-items: center; justify-content: center; }
         
-        /* Estilo da Tela de Login */
         #login-screen {
-            position: fixed; inset: 0; z-index: 90;
+            position: fixed; inset: 0; z-index: 100;
             display: flex; align-items: center; justify-content: center;
-            background: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop') center/cover;
+            background: #0d1b3e;
         }
-        .login-box { background: rgba(13, 27, 62, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .loading-spinner { display: none; }
+        .is-loading .loading-spinner { display: inline-block; }
+        .is-loading .btn-text { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="loading" class="loading-overlay">
-        <div class="text-center">
-            <i class="fas fa-spinner fa-spin text-4xl mb-4 text-blue-400"></i>
-            <p class="font-bold uppercase tracking-widest text-xs">Sincronizando Nuvem...</p>
-        </div>
-    </div>
-
     <div id="login-screen">
-        <div class="login-box p-10 rounded-[40px] w-96 text-center shadow-2xl">
-            <img src="logo.png" class="w-32 mx-auto mb-8" alt="PLAC">
-            <h2 class="text-xl font-black uppercase tracking-tighter mb-2">Painel de Controle</h2>
-            <p class="text-blue-400 text-[10px] uppercase font-bold mb-8 italic">Gestão de Estoque e Vendas</p>
-            <input type="password" id="passInput" placeholder="Sua senha" class="w-full p-4 rounded-2xl mb-4 text-center font-bold">
-            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg shadow-blue-900/50">Entrar no Sistema</button>
+        <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
+            <img src="logo.png" class="w-32 mx-auto mb-8" alt="PLAC" onerror="this.src='https://via.placeholder.com/150?text=PLAC+DRYWALL'">
+            <h2 class="text-xl font-black uppercase mb-6">Acesso ao Sistema</h2>
+            <input type="password" id="passInput" placeholder="Senha" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none">
+            <button id="btnLogin" onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition">
+                <span class="btn-text">Entrar</span>
+                <i class="fas fa-spinner fa-spin loading-spinner"></i>
+            </button>
         </div>
     </div>
 
     <div id="app-content" class="h-screen flex hidden">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-6 border-b border-white/10 mb-4 text-center"><img src="logo.png" class="w-32 mx-auto"></div>
+            <div class="p-6 border-b border-white/10 mb-4 text-center">
+                <span class="font-black text-2xl tracking-tighter text-blue-400">PLAC</span>
+            </div>
             <nav class="flex-1 px-4 space-y-2">
                 <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item active-tab w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-boxes mr-3"></i> Estoque</button>
-                <button onclick="showTab('nfe')" id="btn-nfe" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-file-invoice mr-3"></i> Notas</button>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
             <header class="glass p-5 px-8 flex justify-between items-center mb-4">
                 <h1 id="tab-title" class="text-lg font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
-                <div class="text-[9px] font-bold text-green-400 uppercase"><i class="fas fa-cloud mr-2"></i> Cloud Ativa</div>
+                <div class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-circle mr-2 animate-pulse"></i> Sistema Online</div>
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
                 <section id="tab-dashboard">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Acumuladas</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
-                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes na Base</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
-                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Itens em Estoque</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center">
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Totais</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Estoque</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
                     <div class="glass p-8 h-80"><canvas id="vendasChart"></canvas></div>
                 </section>
 
+                <section id="tab-pdv" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass p-8 space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block">1. Selecionar Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block">2. Selecionar Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                        </div>
+                        <div class="flex gap-4 items-end">
+                            <div class="w-24"><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl"><i class="fas fa-plus mr-2"></i> Lançar Item</button>
+                        </div>
+                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-50 text-[10px] uppercase"><th class="pb-4 text-left">Produto</th><th class="pb-4 text-center">Qtd</th><th class="pb-4 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                    </div>
+                    <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
+                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total Geral</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
+                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:scale-105 transition-transform">Finalizar Venda</button>
+                    </div>
+                </section>
+
                 <section id="tab-estoque" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        <input type="hidden" id="editProdId">
-                        <input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estQtd" placeholder="Quantidade" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estPreco" placeholder="Preço R$" class="p-4 rounded-xl outline-none">
-                        <button id="btnSalvarProd" onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar Produto</button>
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <input type="hidden" id="editCliId">
-                        <input type="text" id="cliNome" placeholder="Nome Completo" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none">
-                        <button id="btnSalvarCli" onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Registrar Cliente</button>
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Salvar</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoClientes"></tbody></table>
                 </section>
-
-                <section id="tab-pdv" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass p-8 space-y-6">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[9px] uppercase font-bold text-blue-400 mb-2 block">1. Selecionar Cliente</label>
-                                <select id="pdvCliente" class="w-full p-4 rounded-xl outline-none font-bold text-xs"></select>
-                            </div>
-                            <div>
-                                <label class="text-[9px] uppercase font-bold text-blue-400 mb-2 block">2. Selecionar Produto</label>
-                                <select id="pdvSelect" class="w-full p-4 rounded-xl outline-none font-bold text-xs"></select>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 items-end">
-                            <div class="w-24">
-                                <label class="text-[9px] uppercase font-bold text-blue-400 mb-2 block">Qtd</label>
-                                <input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center">
-                            </div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg shadow-blue-900/20"><i class="fas fa-plus mr-2"></i> Adicionar Item</button>
-                        </div>
-                        <table class="w-full text-xs mt-4"><tbody id="carrinhoItens"></tbody></table>
-                    </div>
-                    <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
-                        <div>
-                            <p class="text-[10px] uppercase font-bold opacity-50 mb-4">Total da Venda</p>
-                            <h2 class="text-6xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
-                        </div>
-                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:scale-105 transition-transform">Confirmar Pagamento</button>
-                    </div>
-                </section>
-
-                <section id="tab-nfe" class="hidden space-y-4"><div id="listaNfe"></div></section>
             </div>
         </main>
     </div>
@@ -158,56 +132,56 @@
 
         let produtos = [], clientes = [], vendas = [], carrinho = [], myChart;
 
-        // LOGIN
-        window.tentarLogin = () => {
+        window.tentarLogin = async () => {
             const pass = document.getElementById('passInput').value;
-            if(pass === "123") { // Defina sua senha aqui
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-content').classList.remove('hidden');
-                carregarTudo();
+            if(pass === "123") {
+                const btn = document.getElementById('btnLogin');
+                btn.classList.add('is-loading');
+                btn.disabled = true;
+
+                try {
+                    await carregarTudo();
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app-content').classList.remove('hidden');
+                    // Pequeno atraso para o Chart.js não bugar com a animação da tela
+                    setTimeout(() => atualizarDash(), 300);
+                } catch (e) {
+                    alert("Erro ao conectar com Firebase. Tente novamente.");
+                    console.error(e);
+                } finally {
+                    btn.classList.remove('is-loading');
+                    btn.disabled = false;
+                }
             } else { alert("Senha incorreta!"); }
         };
 
         async function carregarTudo() {
-            try {
-                const prodSnap = await getDocs(collection(db, "produtos"));
-                produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const prodSnap = await getDocs(collection(db, "produtos"));
+            produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-                if (produtos.length === 0) {
-                    await criarExemplos();
-                    return;
-                }
-
-                const cliSnap = await getDocs(collection(db, "clientes"));
-                clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-                try {
-                    const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
-                    vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-                } catch (e) { vendas = []; }
-
-                renderTudo();
-            } catch (error) {
-                console.error(error);
-            } finally {
-                const loader = document.getElementById('loading');
-                if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 500); }
+            if (produtos.length === 0) {
+                await criarExemplos();
+                return carregarTudo(); 
             }
+
+            const cliSnap = await getDocs(collection(db, "clientes"));
+            clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            try {
+                const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
+                vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) { vendas = []; }
+
+            renderTudo();
         }
 
         async function criarExemplos() {
-            const exProds = [
-                {nome: "Chapa Drywall ST 12.5mm", qtd: 100, preco: 34.90},
-                {nome: "Perfil Montante 70mm", qtd: 200, preco: 22.50},
-                {nome: "Parafuso GN25 (Cento)", qtd: 500, preco: 12.00}
-            ];
-            const exClis = [{nome: "Pedro Gesso", whats: "11900000000"}, {nome: "João Empreiteiro", whats: "11911111111"}];
+            const exProds = [{nome: "Chapa Drywall ST 12.5mm", qtd: 50, preco: 34.90}, {nome: "Perfil Montante 70mm", qtd: 100, preco: 22.50}];
+            const exClis = [{nome: "Cliente de Teste", whats: "11999999999"}];
             for(let p of exProds) await addDoc(collection(db, "produtos"), p);
             for(let c of exClis) await addDoc(collection(db, "clientes"), c);
-            location.reload();
         }
 
-        // FUNÇÕES GLOBAIS
         window.showTab = (tab) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tab).classList.remove('hidden');
@@ -219,23 +193,16 @@
 
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
-            const dados = {
-                nome: document.getElementById('estNome').value,
-                qtd: parseInt(document.getElementById('estQtd').value),
-                preco: parseFloat(document.getElementById('estPreco').value)
-            };
+            const dados = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value), preco: parseFloat(document.getElementById('estPreco').value) };
             id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
-            limparForms(); carregarTudo();
+            limparForms(); await carregarTudo();
         };
 
         window.handleSalvarCliente = async () => {
             const id = document.getElementById('editCliId').value;
-            const dados = {
-                nome: document.getElementById('cliNome').value,
-                whats: document.getElementById('cliWhats').value
-            };
+            const dados = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value };
             id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
-            limparForms(); carregarTudo();
+            limparForms(); await carregarTudo();
         };
 
         window.handleAdicionarAoCarrinho = () => {
@@ -249,38 +216,32 @@
 
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
-            const venda = {
-                cliente: document.getElementById('pdvCliente').value,
-                total: carrinho.reduce((a,b) => a + b.subtotal, 0),
-                data: new Date().toISOString()
-            };
+            const venda = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b) => a + b.subtotal, 0), data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), venda);
             for(let item of carrinho) {
                 const p = produtos.find(x => x.id === item.id);
                 await updateDoc(doc(db, "produtos", p.id), { qtd: p.qtd - item.qtdVenda });
             }
-            carrinho = []; carregarTudo(); showTab('dashboard');
+            carrinho = []; await carregarTudo(); showTab('dashboard');
         };
 
         window.handleDeletar = async (col, id) => {
-            if(confirm("Excluir definitivamente?")) { await deleteDoc(doc(db, col, id)); carregarTudo(); }
+            if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); await carregarTudo(); }
         };
 
         window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
 
-        function renderTudo() {
-            renderEstoque(); renderClientes(); renderPDV(); renderNfe(); atualizarDash();
-        }
+        function renderTudo() { renderEstoque(); renderClientes(); renderPDV(); renderCarrinho(); atualizarDash(); }
 
         function renderEstoque() {
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="hover:bg-white/5 transition"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-white/20 hover:text-red-400"><i class="fas fa-trash"></i></button></td></tr>
+                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400"><i class="fas fa-trash"></i></button></td></tr>
             `).join('');
         }
 
         function renderClientes() {
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="hover:bg-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="text-white/20 hover:text-red-400"><i class="fas fa-trash"></i></button></td></tr>
+                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400"><i class="fas fa-trash"></i></button></td></tr>
             `).join('');
         }
 
@@ -293,15 +254,9 @@
             let t = 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
                 t += c.subtotal;
-                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="handleRemoverCarrinho(${i})"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`;
+                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center font-bold">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="handleRemoverCarrinho(${i})"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`;
             }).join('');
             document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ',');
-        }
-
-        function renderNfe() {
-            document.getElementById('listaNfe').innerHTML = vendas.map(v => `
-                <div class="glass p-6 flex justify-between items-center mb-2"><div><b class="text-blue-400 uppercase"># ${v.cliente}</b><br><small class="opacity-40">${new Date(v.data).toLocaleString()}</small></div><b class="text-xl">R$ ${v.total.toFixed(2)}</b></div>
-            `).join('');
         }
 
         function atualizarDash() {
@@ -313,10 +268,11 @@
         }
 
         function updateChart() {
-            const ctx = document.getElementById('vendasChart').getContext('2d');
+            const ctx = document.getElementById('vendasChart');
+            if(!ctx || document.getElementById('app-content').classList.contains('hidden')) return;
             const ultimas = vendas.slice(0, 5).reverse();
             if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+            myChart = new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: ultimas.map(v => new Date(v.data).toLocaleDateString()),
@@ -330,8 +286,6 @@
             document.querySelectorAll('input').forEach(i => i.value = '');
             document.getElementById('pdvQtd').value = '1';
         }
-
-        // Removemos o carregarTudo daqui para ele carregar só após o login
     </script>
 </body>
 </html>
