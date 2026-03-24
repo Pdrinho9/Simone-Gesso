@@ -9,29 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --plac-blue: #0d1b3e; }
-        body {
-            background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            color: white;
-            font-family: sans-serif;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-        }
+        body { background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%); background-attachment: fixed; min-height: 100vh; color: white; font-family: sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
         .active-tab { background: rgba(59, 130, 246, 0.2) !important; border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
-        
-        #login-screen {
-            position: fixed; inset: 0; z-index: 9999;
-            display: flex; align-items: center; justify-content: center;
-            background: #0d1b3e;
-        }
+        #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
         .sidebar-item { cursor: pointer; transition: 0.3s; }
         .sidebar-item:hover { background: rgba(255,255,255,0.1); }
+        .edit-hint { font-size: 10px; opacity: 0.4; display: block; }
     </style>
 </head>
 <body>
@@ -39,26 +24,21 @@
     <div id="login-screen">
         <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
             <div class="mb-6"><span class="text-4xl font-black text-blue-500 tracking-tighter">PLAC</span></div>
-            <h2 class="text-xl font-bold uppercase mb-6 text-white/80 tracking-widest text-xs">Acesso ao Painel</h2>
-            <input type="password" id="passInput" placeholder="Senha de Acesso" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
-            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg">Entrar no Sistema</button>
+            <input type="password" id="passInput" placeholder="Senha" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
+            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg">Entrar</button>
         </div>
     </div>
 
     <div id="app-content" class="h-screen flex hidden">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-8 border-b border-white/10 mb-4 text-center">
-                <span class="font-black text-2xl tracking-tighter text-blue-400">PLAC</span>
-            </div>
+            <div class="p-8 border-b border-white/10 mb-4 text-center"><span class="font-black text-2xl tracking-tighter text-blue-400">PLAC</span></div>
             <nav class="flex-1 px-4 space-y-2">
                 <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-boxes mr-3"></i> Estoque</button>
             </nav>
-            <div class="p-4 border-t border-white/10">
-                <button onclick="handleSair()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition"><i class="fas fa-sign-out-alt mr-3"></i> Sair</button>
-            </div>
+            <div class="p-4 border-t border-white/10"><button onclick="location.reload()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition"><i class="fas fa-sign-out-alt mr-3"></i> Sair</button></div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
@@ -80,32 +60,38 @@
                 <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-8 space-y-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">1. Selecionar Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
-                            <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">2. Selecionar Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div><label class="text-[10px] opacity-50 mb-2 block">Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div><label class="text-[10px] opacity-50 mb-2 block">Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
                         </div>
                         <div class="flex gap-4 items-end">
-                            <div class="w-24"><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg hover:bg-blue-500 transition"><i class="fas fa-plus mr-2"></i> Lançar no Carrinho</button>
+                            <div class="w-24"><label class="text-[10px] opacity-50 mb-2 block">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg">Lançar Item</button>
                         </div>
                         <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-[9px] uppercase text-left"><th class="pb-4">Produto</th><th class="pb-4 text-center">Qtd</th><th class="pb-4 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
                     <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
-                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total do Pedido</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
-                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:scale-105 transition-transform active:scale-95">Finalizar Venda</button>
+                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
+                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:scale-105 transition-transform">Finalizar Venda</button>
                     </div>
                 </section>
 
                 <section id="tab-estoque" class="tab-content hidden glass p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço Unit." class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar Item</button>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
+                        <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
+                        <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar</button>
                     </div>
+                    <div class="mb-4"><input type="text" id="buscaEstoque" onkeyup="renderEstoque()" placeholder="🔎 Pesquisar no estoque..." class="w-full p-3 rounded-xl text-sm border-white/5 opacity-80"></div>
                     <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="tab-content hidden glass p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Cadastrar</button>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome" class="p-4 rounded-xl outline-none">
+                        <input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none">
+                        <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Salvar</button>
                     </div>
+                    <div class="mb-4"><input type="text" id="buscaClientes" onkeyup="renderClientes()" placeholder="🔎 Pesquisar cliente por nome..." class="w-full p-3 rounded-xl text-sm border-white/5 opacity-80"></div>
                     <table class="w-full text-left"><tbody id="corpoClientes"></tbody></table>
                 </section>
             </div>
@@ -131,80 +117,76 @@
         let produtos = [], clientes = [], vendas = [], carrinho = [], myChart;
 
         window.tentarLogin = () => {
-            const pass = document.getElementById('passInput').value;
-            if(pass === "123") {
-                // Esconde login e mostra app
+            if(document.getElementById('passInput').value === "123") {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-content').classList.remove('hidden');
-                
-                // Força o Dashboard a aparecer e limpa as outras abas
                 window.showTab('dashboard');
                 carregarDadosIniciais();
             } else { alert("Senha incorreta!"); }
         };
 
-        window.handleSair = () => {
-            location.reload(); // Forma mais segura de resetar tudo e voltar ao login
-        };
-
         async function carregarDadosIniciais() {
             try {
-                const prodSnap = await getDocs(collection(db, "produtos"));
-                produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-                const cliSnap = await getDocs(collection(db, "clientes"));
-                clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-                try {
-                    const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
-                    vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-                } catch (e) { vendas = []; }
-
-                document.getElementById('status-cloud').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Online';
-                document.getElementById('status-cloud').className = 'text-[9px] font-bold text-green-400 uppercase tracking-widest';
-                
-                renderTudo();
-            } catch (error) {
-                console.error(error);
-                document.getElementById('status-cloud').innerHTML = '<i class="fas fa-wifi mr-2"></i> Erro Sinc';
-            }
+                const pSnap = await getDocs(collection(db, "produtos"));
+                produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const cSnap = await getDocs(collection(db, "clientes"));
+                clientes = cSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const vSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
+                vendas = vSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) { console.log("Erro de carga"); }
+            document.getElementById('status-cloud').innerHTML = '<i class="fas fa-check-circle mr-2"></i> Online';
+            renderTudo();
         }
 
         window.showTab = (tabId) => {
-            // Esconde todas as seções
-            document.querySelectorAll('.tab-content').forEach(section => {
-                section.classList.add('hidden');
-            });
-            // Mostra a seção clicada
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tabId).classList.remove('hidden');
-            
-            // Atualiza botões da sidebar
-            document.querySelectorAll('.sidebar-item').forEach(btn => {
-                btn.classList.remove('active-tab');
-            });
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('btn-' + tabId).classList.add('active-tab');
-            
-            // Atualiza título
             document.getElementById('tab-title').innerText = tabId.toUpperCase();
-            
             if(tabId === 'dashboard') atualizarDash();
+            limparForms();
+        };
+
+        window.prepararEdicaoProd = (id) => {
+            const p = produtos.find(x => x.id === id);
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('estNome').value = p.nome;
+            document.getElementById('estQtd').value = p.qtd;
+            document.getElementById('estPreco').value = p.preco;
+            document.getElementById('btnSalvarProd').innerText = "Atualizar";
+            document.getElementById('btnSalvarProd').className = "bg-orange-500 font-bold rounded-xl uppercase text-xs p-4";
+        };
+
+        window.prepararEdicaoCli = (id) => {
+            const c = clientes.find(x => x.id === id);
+            document.getElementById('editCliId').value = c.id;
+            document.getElementById('cliNome').value = c.nome;
+            document.getElementById('cliWhats').value = c.whats;
+            document.getElementById('btnSalvarCli').innerText = "Atualizar";
+            document.getElementById('btnSalvarCli').className = "bg-orange-500 font-bold rounded-xl uppercase text-xs p-4";
         };
 
         window.handleSalvarProduto = async () => {
-            const nome = document.getElementById('estNome').value;
-            const qtd = parseInt(document.getElementById('estQtd').value);
-            const preco = parseFloat(document.getElementById('estPreco').value);
-            if(!nome || isNaN(qtd)) return alert("Preencha os dados!");
-            await addDoc(collection(db, "produtos"), { nome, qtd, preco });
+            const id = document.getElementById('editProdId').value;
+            const dados = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value), preco: parseFloat(document.getElementById('estPreco').value) };
+            if(!dados.nome) return alert("Preencha o nome!");
+            id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
             limparForms(); carregarDadosIniciais();
         };
 
         window.handleSalvarCliente = async () => {
-            const nome = document.getElementById('cliNome').value;
-            const whats = document.getElementById('cliWhats').value;
-            if(!nome) return alert("Nome obrigatório!");
-            await addDoc(collection(db, "clientes"), { nome, whats });
+            const id = document.getElementById('editCliId').value;
+            const dados = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value };
+            if(!dados.nome) return alert("Preencha o nome!");
+            id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
             limparForms(); carregarDadosIniciais();
+        };
+
+        window.abrirZap = (num) => {
+            if(!num) return alert("Sem número!");
+            const limpo = num.replace(/\D/g, "");
+            window.open(`https://wa.me/${limpo}`, "_blank");
         };
 
         window.handleAdicionarAoCarrinho = () => {
@@ -213,17 +195,14 @@
             if(p && qtd <= p.qtd) {
                 carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
                 renderCarrinho();
-            } else { alert("Verifique o estoque!"); }
+            } else { alert("Estoque insuficiente!"); }
         };
 
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
             const venda = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b) => a + b.subtotal, 0), data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), venda);
-            for(let item of carrinho) {
-                const p = produtos.find(x => x.id === item.id);
-                await updateDoc(doc(db, "produtos", p.id), { qtd: p.qtd - item.qtdVenda });
-            }
+            for(let item of carrinho) { await updateDoc(doc(db, "produtos", item.id), { qtd: item.qtd - item.qtdVenda }); }
             carrinho = []; await carregarDadosIniciais(); showTab('dashboard');
         };
 
@@ -231,32 +210,38 @@
             if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); }
         };
 
-        window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
+        window.renderEstoque = () => {
+            const busca = document.getElementById('buscaEstoque').value.toLowerCase();
+            document.getElementById('corpoEstoque').innerHTML = produtos.filter(p => p.nome.toLowerCase().includes(busca)).map(p => `
+                <tr class="hover:bg-white/5 border-b border-white/5">
+                    <td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')"><span class="font-bold text-[11px] uppercase">${p.nome}</span><span class="edit-hint text-blue-400">Clique para editar</span></td>
+                    <td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td>
+                    <td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400 p-2"><i class="fas fa-trash"></i></button></td>
+                </tr>`).join('');
+        };
 
-        function renderTudo() { renderEstoque(); renderClientes(); renderPDV(); renderCarrinho(); atualizarDash(); }
+        window.renderClientes = () => {
+            const busca = document.getElementById('buscaClientes').value.toLowerCase();
+            document.getElementById('corpoClientes').innerHTML = clientes.filter(c => c.nome.toLowerCase().includes(busca)).map(c => `
+                <tr class="hover:bg-white/5 border-b border-white/5">
+                    <td class="p-4 cursor-pointer" onclick="prepararEdicaoCli('${c.id}')"><span class="font-bold text-[11px] uppercase">${c.nome}</span><span class="edit-hint text-green-400">Clique para editar</span></td>
+                    <td class="p-4 text-blue-300 font-bold">${c.whats}</td>
+                    <td class="p-4 text-right flex justify-end gap-2"><button onclick="abrirZap('${c.whats}')" class="text-green-400 p-2 text-lg"><i class="fab fa-whatsapp"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400 p-2"><i class="fas fa-trash"></i></button></td>
+                </tr>`).join('');
+        };
 
-        function renderEstoque() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100 text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
-            `).join('');
-        }
-
-        function renderClientes() {
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100 text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
-            `).join('');
-        }
-
-        function renderPDV() {
+        function renderTudo() {
+            renderEstoque(); renderClientes();
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco}</option>`).join('');
+            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            renderCarrinho(); atualizarDash();
         }
 
         function renderCarrinho() {
             let t = 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
                 t += c.subtotal;
-                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center font-bold">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="handleRemoverCarrinho(${i})"><i class="fas fa-times text-red-400 cursor-pointer p-2"></i></td></tr>`;
+                return `<tr class="border-b border-white/5"><td class="py-4 uppercase">${c.nome}</td><td class="text-center font-bold">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-times text-red-400 cursor-pointer p-2"></i></td></tr>`;
             }).join('');
             document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ',');
         }
@@ -266,19 +251,14 @@
             document.getElementById('dash-clientes-count').innerText = clientes.length;
             const total = vendas.reduce((acc, v) => acc + v.total, 0);
             document.getElementById('dash-vendas-total').innerText = "R$ " + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-            updateChart();
-        }
-
-        function updateChart() {
             const ctx = document.getElementById('vendasChart');
             if(!ctx || document.getElementById('tab-dashboard').classList.contains('hidden')) return;
-            const ultimas = vendas.slice(0, 5).reverse();
             if(myChart) myChart.destroy();
             myChart = new Chart(ctx.getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels: ultimas.map(v => new Date(v.data).toLocaleDateString()),
-                    datasets: [{ label: 'Vendas', data: ultimas.map(v => v.total), borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
+                    labels: vendas.slice(0,5).reverse().map(v => new Date(v.data).toLocaleDateString()),
+                    datasets: [{ label: 'Vendas', data: vendas.slice(0,5).reverse().map(v => v.total), borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59, 130, 246, 0.1)' }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
@@ -287,6 +267,10 @@
         function limparForms() {
             document.querySelectorAll('input').forEach(i => i.value = '');
             document.getElementById('pdvQtd').value = '1';
+            document.getElementById('btnSalvarProd').innerText = "Salvar";
+            document.getElementById('btnSalvarProd').className = "bg-blue-600 font-bold rounded-xl uppercase text-xs p-4";
+            document.getElementById('btnSalvarCli').innerText = "Salvar";
+            document.getElementById('btnSalvarCli').className = "bg-green-600 font-bold rounded-xl uppercase text-xs p-4";
         }
     </script>
 </body>
