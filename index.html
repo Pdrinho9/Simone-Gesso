@@ -26,28 +26,25 @@
         .active-tab { background: rgba(255,255,255,0.15); border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
         
+        /* LOGIN FIX: pointer-events impede que a tela invisível bloqueie os cliques */
         #login-screen {
             position: fixed; inset: 0; z-index: 999;
             display: flex; align-items: center; justify-content: center;
             background: #0d1b3e;
-            transition: 0.5s ease;
+            transition: opacity 0.5s ease;
         }
-        .sidebar-item:hover { background: rgba(255,255,255,0.1); }
+        .sidebar-item:hover { background: rgba(255,255,255,0.1); cursor: pointer; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
-            <div class="mb-6">
-                <span class="text-4xl font-black text-blue-500 tracking-tighter">PLAC</span>
-            </div>
+            <div class="mb-6"><span class="text-4xl font-black text-blue-500 tracking-tighter">PLAC</span></div>
             <h2 class="text-xl font-bold uppercase mb-6 text-white/80 tracking-widest text-xs">Acesso ao Painel</h2>
             <input type="password" id="passInput" placeholder="Senha de Acesso" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
-            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg shadow-blue-900/40">
-                Entrar no Sistema
-            </button>
-            <p class="mt-6 text-[9px] text-white/20 uppercase tracking-[0.2em]">Criptografia de Ponta a Ponta</p>
+            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg shadow-blue-900/40">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -62,11 +59,8 @@
                 <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-boxes mr-3"></i> Estoque</button>
             </nav>
-            
             <div class="p-4 border-t border-white/10">
-                <button onclick="handleSair()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition">
-                    <i class="fas fa-sign-out-alt mr-3"></i> Sair do Sistema
-                </button>
+                <button onclick="handleSair()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition"><i class="fas fa-sign-out-alt mr-3"></i> Sair</button>
             </div>
         </aside>
 
@@ -94,7 +88,7 @@
                         </div>
                         <div class="flex gap-4 items-end">
                             <div class="w-24"><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg"><i class="fas fa-plus mr-2"></i> Lançar no Carrinho</button>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg hover:bg-blue-500 transition"><i class="fas fa-plus mr-2"></i> Lançar no Carrinho</button>
                         </div>
                         <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-[9px] uppercase text-left"><th class="pb-4">Produto</th><th class="pb-4 text-center">Qtd</th><th class="pb-4 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
@@ -106,14 +100,14 @@
 
                 <section id="tab-estoque" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço Unit." class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar Item</button>
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço Unit." class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar Item</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Cadastrar</button>
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Cadastrar</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoClientes"></tbody></table>
                 </section>
@@ -139,25 +133,27 @@
 
         let produtos = [], clientes = [], vendas = [], carrinho = [], myChart;
 
-        // LOGIN E LOGOUT
         window.tentarLogin = () => {
             const pass = document.getElementById('passInput').value;
             if(pass === "123") {
-                document.getElementById('login-screen').style.opacity = '0';
+                const screen = document.getElementById('login-screen');
+                screen.style.opacity = '0';
+                // AGORA SIM: removemos o bloqueio de clique após a animação
                 setTimeout(() => {
-                    document.getElementById('login-screen').classList.add('hidden');
+                    screen.classList.add('hidden');
                     document.getElementById('app-content').classList.remove('hidden');
                     carregarDadosIniciais();
-                }, 400);
+                }, 500);
             } else { alert("Senha incorreta!"); }
         };
 
         window.handleSair = () => {
-            if(confirm("Deseja realmente sair do sistema?")) {
+            if(confirm("Deseja realmente sair?")) {
+                const screen = document.getElementById('login-screen');
                 document.getElementById('passInput').value = "";
-                document.getElementById('login-screen').classList.remove('hidden');
+                screen.classList.remove('hidden');
                 document.getElementById('app-content').classList.add('hidden');
-                setTimeout(() => { document.getElementById('login-screen').style.opacity = '1'; }, 10);
+                setTimeout(() => { screen.style.opacity = '1'; }, 10);
             }
         };
 
@@ -195,14 +191,25 @@
 
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
-            const dados = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value), preco: parseFloat(document.getElementById('estPreco').value) };
+            const nome = document.getElementById('estNome').value;
+            const qtd = parseInt(document.getElementById('estQtd').value);
+            const preco = parseFloat(document.getElementById('estPreco').value);
+
+            if(!nome || isNaN(qtd) || isNaN(preco)) return alert("Preencha todos os campos!");
+            
+            const dados = { nome, qtd, preco };
             id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
             limparForms(); await carregarDadosIniciais();
         };
 
         window.handleSalvarCliente = async () => {
             const id = document.getElementById('editCliId').value;
-            const dados = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value };
+            const nome = document.getElementById('cliNome').value;
+            const whats = document.getElementById('cliWhats').value;
+
+            if(!nome || !whats) return alert("Preencha todos os campos!");
+
+            const dados = { nome, whats };
             id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
             limparForms(); await carregarDadosIniciais();
         };
@@ -211,10 +218,10 @@
             const select = document.getElementById('pdvSelect');
             const p = produtos.find(item => item.id === select.value);
             const qtd = parseInt(document.getElementById('pdvQtd').value);
-            if(p && qtd <= p.qtd) {
+            if(p && qtd > 0 && qtd <= p.qtd) {
                 carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
                 renderCarrinho();
-            } else { alert("Selecione um produto ou verifique o estoque!"); }
+            } else { alert("Estoque insuficiente ou produto inválido!"); }
         };
 
         window.handleFinalizarVenda = async () => {
@@ -229,7 +236,7 @@
         };
 
         window.handleDeletar = async (col, id) => {
-            if(confirm("Excluir item permanentemente?")) { await deleteDoc(doc(db, col, id)); await carregarDadosIniciais(); }
+            if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); await carregarDadosIniciais(); }
         };
 
         window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
@@ -238,13 +245,13 @@
 
         function renderEstoque() {
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400"><i class="fas fa-trash"></i></button></td></tr>
+                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
             `).join('');
         }
 
         function renderClientes() {
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400"><i class="fas fa-trash"></i></button></td></tr>
+                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
             `).join('');
         }
 
@@ -257,7 +264,7 @@
             let t = 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
                 t += c.subtotal;
-                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center font-bold">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="handleRemoverCarrinho(${i})"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`;
+                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center font-bold">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="handleRemoverCarrinho(${i})"><i class="fas fa-times text-red-400 cursor-pointer p-2"></i></td></tr>`;
             }).join('');
             document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ',');
         }
