@@ -14,6 +14,7 @@
             background-attachment: fixed;
             min-height: 100vh;
             color: white;
+            font-family: sans-serif;
         }
         .glass {
             background: rgba(255, 255, 255, 0.05);
@@ -24,38 +25,38 @@
         .sidebar-item:hover { background: rgba(255,255,255,0.1); }
         .active-tab { background: rgba(255,255,255,0.15); border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+        tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .loading-overlay { position: fixed; inset: 0; background: #0d1b3e; z-index: 100; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
     </style>
 </head>
 <body>
 
+    <div id="loading" class="loading-overlay"><div class="text-center"><i class="fas fa-spinner fa-spin text-4xl mb-4 text-blue-400"></i><p class="font-bold uppercase tracking-widest text-xs">Conectando ao Banco...</p></div></div>
+
     <div id="app-content" class="h-screen overflow-hidden flex">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-6 border-b border-white/10 mb-4 text-center">
-                <img src="logo.png" class="w-32 mx-auto" alt="PLAC DRYWALL">
-            </div>
+            <div class="p-6 border-b border-white/10 mb-4 text-center"><img src="logo.png" class="w-32 mx-auto" alt="PLAC"></div>
             <nav class="flex-1 px-4 space-y-2">
-                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item active-tab w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
-                <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-shopping-cart mr-3"></i> PDV / Vendas</button>
-                <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-users mr-3"></i> Clientes</button>
-                <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-boxes mr-3"></i> Estoque</button>
-                <button onclick="showTab('nfe')" id="btn-nfe" class="sidebar-item w-full flex items-center p-4 rounded-2xl transition text-sm"><i class="fas fa-file-invoice mr-3"></i> Notas Fiscais</button>
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item active-tab w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
+                <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
+                <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-users mr-3"></i> Clientes</button>
+                <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-boxes mr-3"></i> Estoque</button>
+                <button onclick="showTab('nfe')" id="btn-nfe" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-file-invoice mr-3"></i> Notas</button>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
             <header class="glass p-5 px-8 flex justify-between items-center mb-4">
                 <h1 id="tab-title" class="text-lg font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
-                <div id="status-cloud" class="text-[9px] font-bold text-green-400 uppercase flex items-center">
-                    <i class="fas fa-cloud mr-2"></i> Conectado ao Firebase
-                </div>
+                <div class="text-[9px] font-bold text-green-400 uppercase"><i class="fas fa-cloud mr-2"></i> Firebase Online</div>
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
                 <section id="tab-dashboard">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Totais</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Itens em Estoque</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
+                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
+                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Produtos</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
                     <div class="glass p-8 h-80"><canvas id="vendasChart"></canvas></div>
                 </section>
@@ -66,23 +67,19 @@
                         <input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
                         <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none">
                         <input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
-                        <button id="btnSalvarProd" onclick="salvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar Produto</button>
+                        <button id="btnSalvarProd" onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs">Salvar</button>
                     </div>
-                    <table class="w-full text-left">
-                        <tbody id="corpoEstoque"></tbody>
-                    </table>
+                    <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                         <input type="hidden" id="editCliId">
                         <input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliWhats" placeholder="WhatsApp (DDD + Número)" class="p-4 rounded-xl outline-none">
-                        <button id="btnSalvarCli" onclick="salvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Salvar Cliente</button>
+                        <input type="text" id="cliWhats" placeholder="Whats (Somente números)" class="p-4 rounded-xl outline-none">
+                        <button id="btnSalvarCli" onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs">Salvar Cliente</button>
                     </div>
-                    <table class="w-full text-left">
-                        <tbody id="corpoClientes"></tbody>
-                    </table>
+                    <table class="w-full text-left"><tbody id="corpoClientes"></tbody></table>
                 </section>
 
                 <section id="tab-pdv" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -93,13 +90,13 @@
                         </div>
                         <div class="flex gap-4">
                             <input type="number" id="pdvQtd" value="1" min="1" class="w-24 p-4 rounded-xl text-center">
-                            <button onclick="adicionarAoCarrinho()" class="flex-1 bg-blue-600 font-black uppercase text-xs rounded-xl">Adicionar Item</button>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 font-black uppercase text-xs rounded-xl">Lançar Item</button>
                         </div>
                         <table class="w-full text-xs mt-4"><tbody id="carrinhoItens"></tbody></table>
                     </div>
                     <div class="glass p-8 flex flex-col justify-between bg-blue-600/10">
                         <h2 class="text-5xl font-black">R$ <span id="pdvTotal">0,00</span></h2>
-                        <button onclick="finalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg">Finalizar Venda</button>
+                        <button onclick="handleFinalizarVenda()" class="bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg">Finalizar Venda</button>
                     </div>
                 </section>
 
@@ -118,21 +115,15 @@
             projectId: "sistema-plac",
             storageBucket: "sistema-plac.firebasestorage.app",
             messagingSenderId: "54513790116",
-            appId: "1:54513790116:web:77d0722e5a8b8b10dfca31",
-            measurementId: "G-KGE800YQHV"
+            appId: "1:54513790116:web:77d0722e5a8b8b10dfca31"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // VARIÁVEIS LOCAIS
-        let produtos = [];
-        let clientes = [];
-        let vendas = [];
-        let carrinho = [];
-        let myChart;
+        let produtos = [], clientes = [], vendas = [], carrinho = [], myChart;
 
-        // CARREGAR DADOS DO FIREBASE
+        // INICIALIZAÇÃO E EXEMPLOS
         async function carregarTudo() {
             const prodSnap = await getDocs(collection(db, "produtos"));
             produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -140,75 +131,37 @@
             const cliSnap = await getDocs(collection(db, "clientes"));
             clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
+            if (produtos.length === 0) await criarExemplos();
+
             const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
             vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            renderEstoque();
-            renderClientes();
-            renderPDV();
-            renderNfe();
-            atualizarDash();
+            renderTudo();
+            document.getElementById('loading').style.opacity = '0';
+            setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
         }
 
-        // SALVAR PRODUTO
-        window.salvarProduto = async () => {
-            const id = document.getElementById('editProdId').value;
-            const dados = {
-                nome: document.getElementById('estNome').value,
-                qtd: parseInt(document.getElementById('estQtd').value),
-                preco: parseFloat(document.getElementById('estPreco').value)
-            };
-
-            if(id) {
-                await updateDoc(doc(db, "produtos", id), dados);
-            } else {
-                await addDoc(collection(db, "produtos"), dados);
-            }
-            limparFormProd();
-            carregarTudo();
+        async function criarExemplos() {
+            const exProds = [
+                {nome: "Chapa Drywall ST 12.5mm", qtd: 100, preco: 34.90},
+                {nome: "Perfil Montante 70mm", qtd: 200, preco: 22.50},
+                {nome: "Perfil Guia 70mm", qtd: 150, preco: 19.90},
+                {nome: "Parafuso GN25 (Cento)", qtd: 500, preco: 12.00},
+                {nome: "Massa Drywall 30kg", qtd: 40, preco: 85.00}
+            ];
+            const exClis = [
+                {nome: "Pedro Gesso", whats: "11900000000"},
+                {nome: "João Empreiteiro", whats: "11911111111"},
+                {nome: "Maria Reformas", whats: "11922222222"},
+                {nome: "Construtora Silva", whats: "11933333333"},
+                {nome: "Consumidor Final", whats: "00000000000"}
+            ];
+            for(let p of exProds) await addDoc(collection(db, "produtos"), p);
+            for(let c of exClis) await addDoc(collection(db, "clientes"), c);
+            location.reload();
         }
 
-        // SALVAR CLIENTE
-        window.salvarCliente = async () => {
-            const id = document.getElementById('editCliId').value;
-            const dados = {
-                nome: document.getElementById('cliNome').value,
-                whats: document.getElementById('cliWhats').value
-            };
-
-            if(id) {
-                await updateDoc(doc(db, "clientes", id), dados);
-            } else {
-                await addDoc(collection(db, "clientes"), dados);
-            }
-            limparFormCli();
-            carregarTudo();
-        }
-
-        // FINALIZAR VENDA
-        window.finalizarVenda = async () => {
-            if(carrinho.length === 0) return;
-            const venda = {
-                cliente: document.getElementById('pdvCliente').value,
-                total: carrinho.reduce((a,b) => a + b.subtotal, 0),
-                data: new Date().toISOString()
-            };
-
-            await addDoc(collection(db, "vendas"), venda);
-            
-            // Atualizar estoque no Firebase
-            for(let item of carrinho) {
-                const p = produtos.find(x => x.id === item.id);
-                await updateDoc(doc(db, "produtos", p.id), { qtd: p.qtd - item.qtdVenda });
-            }
-
-            carrinho = [];
-            renderCarrinho();
-            showTab('dashboard');
-            carregarTudo();
-        }
-
-        // FUNÇÕES DE UI (REDEFINIDAS PARA O ESCOPO MODULE)
+        // FUNÇÕES GLOBAIS (LIGADAS AO WINDOW)
         window.showTab = (tab) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tab).classList.remove('hidden');
@@ -218,15 +171,88 @@
             if(tab === 'dashboard') atualizarDash();
         };
 
+        window.handleSalvarProduto = async () => {
+            const id = document.getElementById('editProdId').value;
+            const dados = {
+                nome: document.getElementById('estNome').value,
+                qtd: parseInt(document.getElementById('estQtd').value),
+                preco: parseFloat(document.getElementById('estPreco').value)
+            };
+            id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
+            limparForms(); carregarTudo();
+        };
+
+        window.handleSalvarCliente = async () => {
+            const id = document.getElementById('editCliId').value;
+            const dados = {
+                nome: document.getElementById('cliNome').value,
+                whats: document.getElementById('cliWhats').value
+            };
+            id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
+            limparForms(); carregarTudo();
+        };
+
+        window.handleAdicionarAoCarrinho = () => {
+            const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
+            const qtd = parseInt(document.getElementById('pdvQtd').value);
+            if(p && qtd <= p.qtd) {
+                carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
+                renderCarrinho();
+            } else { alert("Estoque insuficiente!"); }
+        };
+
+        window.handleFinalizarVenda = async () => {
+            if(carrinho.length === 0) return;
+            const venda = {
+                cliente: document.getElementById('pdvCliente').value,
+                total: carrinho.reduce((a,b) => a + b.subtotal, 0),
+                data: new Date().toISOString()
+            };
+            await addDoc(collection(db, "vendas"), venda);
+            for(let item of carrinho) {
+                const p = produtos.find(x => x.id === item.id);
+                await updateDoc(doc(db, "produtos", p.id), { qtd: p.qtd - item.qtdVenda });
+            }
+            carrinho = []; carregarTudo(); showTab('dashboard');
+        };
+
+        window.prepararEditProd = (id) => {
+            const p = produtos.find(x => x.id === id);
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('estNome').value = p.nome;
+            document.getElementById('estQtd').value = p.qtd;
+            document.getElementById('estPreco').value = p.preco;
+            document.getElementById('btnSalvarProd').innerText = "Atualizar";
+        };
+
+        window.prepararEditCli = (id) => {
+            const c = clientes.find(x => x.id === id);
+            document.getElementById('editCliId').value = c.id;
+            document.getElementById('cliNome').value = c.nome;
+            document.getElementById('cliWhats').value = c.whats;
+            document.getElementById('btnSalvarCli').innerText = "Atualizar";
+        };
+
+        window.handleDeletar = async (col, id) => {
+            if(confirm("Excluir item?")) { await deleteDoc(doc(db, col, id)); carregarTudo(); }
+        };
+
+        window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
+
+        // RENDERS
+        function renderTudo() {
+            renderEstoque(); renderClientes(); renderPDV(); renderNfe(); atualizarDash();
+        }
+
         function renderEstoque() {
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="hover:bg-white/5 transition border-b border-white/5">
-                    <td class="p-4 uppercase font-bold text-xs">${p.nome}</td>
+                <tr class="hover:bg-white/5 transition">
+                    <td class="p-4 uppercase font-bold text-[11px]">${p.nome}</td>
                     <td class="p-4"><span class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-lg">${p.qtd} UN</span></td>
                     <td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td>
                     <td class="p-4 text-right">
                         <button onclick="prepararEditProd('${p.id}')" class="text-blue-400 mr-4"><i class="fas fa-edit"></i></button>
-                        <button onclick="deletarItem('produtos', '${p.id}')" class="text-red-400/50"><i class="fas fa-trash"></i></button>
+                        <button onclick="handleDeletar('produtos', '${p.id}')" class="text-white/20 hover:text-red-400"><i class="fas fa-trash text-xs"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -234,13 +260,13 @@
 
         function renderClientes() {
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="hover:bg-white/5 border-b border-white/5">
-                    <td class="p-4 uppercase font-bold text-xs">${c.nome}</td>
+                <tr class="hover:bg-white/5">
+                    <td class="p-4 uppercase font-bold text-[11px]">${c.nome}</td>
                     <td class="p-4 text-center text-blue-300 font-bold">${c.whats}</td>
                     <td class="p-4 text-right">
                         <button onclick="prepararEditCli('${c.id}')" class="text-blue-400 mr-4"><i class="fas fa-edit"></i></button>
                         <a href="https://wa.me/55${c.whats}" target="_blank" class="text-green-400 mr-4"><i class="fab fa-whatsapp"></i></a>
-                        <button onclick="deletarItem('clientes', '${c.id}')" class="text-red-400/50"><i class="fas fa-trash"></i></button>
+                        <button onclick="handleDeletar('clientes', '${c.id}')" class="text-white/20 hover:text-red-400"><i class="fas fa-trash text-xs"></i></button>
                     </td>
                 </tr>
             `).join('');
@@ -251,20 +277,11 @@
             document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} - R$ ${p.preco}</option>`).join('');
         }
 
-        window.adicionarAoCarrinho = () => {
-            const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
-            const qtd = parseInt(document.getElementById('pdvQtd').value);
-            if(p && qtd <= p.qtd) {
-                carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
-                renderCarrinho();
-            } else { alert("Estoque insuficiente!"); }
-        };
-
         function renderCarrinho() {
             let t = 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
                 t += c.subtotal;
-                return `<tr class="border-b border-white/5"><td class="py-3 uppercase font-bold">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="removerCarrinho(${i})">×</td></tr>`;
+                return `<tr class="border-b border-white/5"><td class="py-4 font-bold uppercase">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right pl-4" onclick="handleRemoverCarrinho(${i})"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`;
             }).join('');
             document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ',');
         }
@@ -286,46 +303,6 @@
             updateChart();
         }
 
-        // SISTEMA DE EDIÇÃO E DELETE
-        window.prepararEditProd = (id) => {
-            const p = produtos.find(x => x.id === id);
-            document.getElementById('editProdId').value = p.id;
-            document.getElementById('estNome').value = p.nome;
-            document.getElementById('estQtd').value = p.qtd;
-            document.getElementById('estPreco').value = p.preco;
-            document.getElementById('btnSalvarProd').innerText = "Atualizar";
-        };
-
-        window.prepararEditCli = (id) => {
-            const c = clientes.find(x => x.id === id);
-            document.getElementById('editCliId').value = c.id;
-            document.getElementById('cliNome').value = c.nome;
-            document.getElementById('cliWhats').value = c.whats;
-            document.getElementById('btnSalvarCli').innerText = "Atualizar";
-        };
-
-        window.deletarItem = async (col, id) => {
-            if(confirm("Deseja realmente excluir?")) {
-                await deleteDoc(doc(db, col, id));
-                carregarTudo();
-            }
-        };
-
-        function limparFormProd() {
-            document.getElementById('editProdId').value = '';
-            document.getElementById('estNome').value = '';
-            document.getElementById('estQtd').value = '';
-            document.getElementById('estPreco').value = '';
-            document.getElementById('btnSalvarProd').innerText = "Salvar Produto";
-        }
-
-        function limparFormCli() {
-            document.getElementById('editCliId').value = '';
-            document.getElementById('cliNome').value = '';
-            document.getElementById('cliWhats').value = '';
-            document.getElementById('btnSalvarCli').innerText = "Salvar Cliente";
-        }
-
         function updateChart() {
             const ctx = document.getElementById('vendasChart').getContext('2d');
             const ultimas = vendas.slice(0, 5).reverse();
@@ -340,7 +317,13 @@
             });
         }
 
-        // INICIALIZAÇÃO
+        function limparForms() {
+            document.querySelectorAll('input').forEach(i => i.value = '');
+            document.getElementById('btnSalvarProd').innerText = "Salvar";
+            document.getElementById('btnSalvarCli').innerText = "Salvar Cliente";
+            document.getElementById('pdvQtd').value = '1';
+        }
+
         carregarTudo();
     </script>
 </body>
