@@ -15,7 +15,6 @@
             min-height: 100vh;
             color: white;
             font-family: sans-serif;
-            overflow-x: hidden;
         }
         .glass {
             background: rgba(255, 255, 255, 0.05);
@@ -23,18 +22,16 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
         }
-        .active-tab { background: rgba(255,255,255,0.15); border-left: 4px solid #3b82f6; }
+        .active-tab { background: rgba(59, 130, 246, 0.2) !important; border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
         
-        /* LOGIN FIX: pointer-events impede que a tela invisível bloqueie os cliques */
         #login-screen {
-            position: fixed; inset: 0; z-index: 999;
+            position: fixed; inset: 0; z-index: 9999;
             display: flex; align-items: center; justify-content: center;
             background: #0d1b3e;
-            transition: opacity 0.5s ease;
         }
-        .sidebar-item:hover { background: rgba(255,255,255,0.1); cursor: pointer; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sidebar-item { cursor: pointer; transition: 0.3s; }
+        .sidebar-item:hover { background: rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -44,7 +41,7 @@
             <div class="mb-6"><span class="text-4xl font-black text-blue-500 tracking-tighter">PLAC</span></div>
             <h2 class="text-xl font-bold uppercase mb-6 text-white/80 tracking-widest text-xs">Acesso ao Painel</h2>
             <input type="password" id="passInput" placeholder="Senha de Acesso" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
-            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg shadow-blue-900/40">Entrar no Sistema</button>
+            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg">Entrar no Sistema</button>
         </div>
     </div>
 
@@ -54,10 +51,10 @@
                 <span class="font-black text-2xl tracking-tighter text-blue-400">PLAC</span>
             </div>
             <nav class="flex-1 px-4 space-y-2">
-                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
-                <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
-                <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-users mr-3"></i> Clientes</button>
-                <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm transition"><i class="fas fa-boxes mr-3"></i> Estoque</button>
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
+                <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
+                <button onclick="showTab('clientes')" id="btn-clientes" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-users mr-3"></i> Clientes</button>
+                <button onclick="showTab('estoque')" id="btn-estoque" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-boxes mr-3"></i> Estoque</button>
             </nav>
             <div class="p-4 border-t border-white/10">
                 <button onclick="handleSair()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition"><i class="fas fa-sign-out-alt mr-3"></i> Sair</button>
@@ -71,7 +68,7 @@
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
-                <section id="tab-dashboard">
+                <section id="tab-dashboard" class="tab-content">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center">
                         <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Totais</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
                         <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
@@ -80,7 +77,7 @@
                     <div class="glass p-8 h-80"><canvas id="vendasChart"></canvas></div>
                 </section>
 
-                <section id="tab-pdv" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-8 space-y-6">
                         <div class="grid grid-cols-2 gap-4">
                             <div><label class="text-[10px] uppercase font-bold text-blue-400 mb-2 block tracking-widest">1. Selecionar Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
@@ -98,14 +95,14 @@
                     </div>
                 </section>
 
-                <section id="tab-estoque" class="hidden glass p-8">
+                <section id="tab-estoque" class="tab-content hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                         <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço Unit." class="p-4 rounded-xl outline-none"><button onclick="handleSalvarProduto()" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar Item</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
-                <section id="tab-clientes" class="hidden glass p-8">
+                <section id="tab-clientes" class="tab-content hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                         <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome do Cliente" class="p-4 rounded-xl outline-none"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none"><button onclick="handleSalvarCliente()" class="bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Cadastrar</button>
                     </div>
@@ -136,25 +133,18 @@
         window.tentarLogin = () => {
             const pass = document.getElementById('passInput').value;
             if(pass === "123") {
-                const screen = document.getElementById('login-screen');
-                screen.style.opacity = '0';
-                // AGORA SIM: removemos o bloqueio de clique após a animação
-                setTimeout(() => {
-                    screen.classList.add('hidden');
-                    document.getElementById('app-content').classList.remove('hidden');
-                    carregarDadosIniciais();
-                }, 500);
+                // Esconde login e mostra app
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').classList.remove('hidden');
+                
+                // Força o Dashboard a aparecer e limpa as outras abas
+                window.showTab('dashboard');
+                carregarDadosIniciais();
             } else { alert("Senha incorreta!"); }
         };
 
         window.handleSair = () => {
-            if(confirm("Deseja realmente sair?")) {
-                const screen = document.getElementById('login-screen');
-                document.getElementById('passInput').value = "";
-                screen.classList.remove('hidden');
-                document.getElementById('app-content').classList.add('hidden');
-                setTimeout(() => { screen.style.opacity = '1'; }, 10);
-            }
+            location.reload(); // Forma mais segura de resetar tudo e voltar ao login
         };
 
         async function carregarDadosIniciais() {
@@ -180,48 +170,50 @@
             }
         }
 
-        window.showTab = (tab) => {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.querySelectorAll('aside button').forEach(b => b.classList.remove('active-tab'));
-            document.getElementById('btn-' + tab).classList.add('active-tab');
-            document.getElementById('tab-title').innerText = tab.toUpperCase();
-            if(tab === 'dashboard') atualizarDash();
+        window.showTab = (tabId) => {
+            // Esconde todas as seções
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            // Mostra a seção clicada
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            
+            // Atualiza botões da sidebar
+            document.querySelectorAll('.sidebar-item').forEach(btn => {
+                btn.classList.remove('active-tab');
+            });
+            document.getElementById('btn-' + tabId).classList.add('active-tab');
+            
+            // Atualiza título
+            document.getElementById('tab-title').innerText = tabId.toUpperCase();
+            
+            if(tabId === 'dashboard') atualizarDash();
         };
 
         window.handleSalvarProduto = async () => {
-            const id = document.getElementById('editProdId').value;
             const nome = document.getElementById('estNome').value;
             const qtd = parseInt(document.getElementById('estQtd').value);
             const preco = parseFloat(document.getElementById('estPreco').value);
-
-            if(!nome || isNaN(qtd) || isNaN(preco)) return alert("Preencha todos os campos!");
-            
-            const dados = { nome, qtd, preco };
-            id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
-            limparForms(); await carregarDadosIniciais();
+            if(!nome || isNaN(qtd)) return alert("Preencha os dados!");
+            await addDoc(collection(db, "produtos"), { nome, qtd, preco });
+            limparForms(); carregarDadosIniciais();
         };
 
         window.handleSalvarCliente = async () => {
-            const id = document.getElementById('editCliId').value;
             const nome = document.getElementById('cliNome').value;
             const whats = document.getElementById('cliWhats').value;
-
-            if(!nome || !whats) return alert("Preencha todos os campos!");
-
-            const dados = { nome, whats };
-            id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
-            limparForms(); await carregarDadosIniciais();
+            if(!nome) return alert("Nome obrigatório!");
+            await addDoc(collection(db, "clientes"), { nome, whats });
+            limparForms(); carregarDadosIniciais();
         };
 
         window.handleAdicionarAoCarrinho = () => {
-            const select = document.getElementById('pdvSelect');
-            const p = produtos.find(item => item.id === select.value);
+            const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
             const qtd = parseInt(document.getElementById('pdvQtd').value);
-            if(p && qtd > 0 && qtd <= p.qtd) {
+            if(p && qtd <= p.qtd) {
                 carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
                 renderCarrinho();
-            } else { alert("Estoque insuficiente ou produto inválido!"); }
+            } else { alert("Verifique o estoque!"); }
         };
 
         window.handleFinalizarVenda = async () => {
@@ -236,7 +228,7 @@
         };
 
         window.handleDeletar = async (col, id) => {
-            if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); await carregarDadosIniciais(); }
+            if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); }
         };
 
         window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
@@ -245,13 +237,13 @@
 
         function renderEstoque() {
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
+                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${p.nome}</td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100 text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
             `).join('');
         }
 
         function renderClientes() {
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100 hover:text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
+                <tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold text-[11px] uppercase">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100 text-red-400 p-2"><i class="fas fa-trash"></i></button></td></tr>
             `).join('');
         }
 
@@ -279,7 +271,7 @@
 
         function updateChart() {
             const ctx = document.getElementById('vendasChart');
-            if(!ctx) return;
+            if(!ctx || document.getElementById('tab-dashboard').classList.contains('hidden')) return;
             const ultimas = vendas.slice(0, 5).reverse();
             if(myChart) myChart.destroy();
             myChart = new Chart(ctx.getContext('2d'), {
