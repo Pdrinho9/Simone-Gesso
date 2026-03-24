@@ -31,7 +31,12 @@
 </head>
 <body>
 
-    <div id="loading" class="loading-overlay"><div class="text-center"><i class="fas fa-spinner fa-spin text-4xl mb-4 text-blue-400"></i><p class="font-bold uppercase tracking-widest text-xs">Conectando ao Banco...</p></div></div>
+    <div id="loading" class="loading-overlay">
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-4xl mb-4 text-blue-400"></i>
+            <p class="font-bold uppercase tracking-widest text-xs">Conectando ao Banco...</p>
+        </div>
+    </div>
 
     <div id="app-content" class="h-screen overflow-hidden flex">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
@@ -123,22 +128,42 @@
 
         let produtos = [], clientes = [], vendas = [], carrinho = [], myChart;
 
-        // INICIALIZAÇÃO E EXEMPLOS
         async function carregarTudo() {
-            const prodSnap = await getDocs(collection(db, "produtos"));
-            produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            try {
+                // Tenta carregar produtos
+                const prodSnap = await getDocs(collection(db, "produtos"));
+                produtos = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            const cliSnap = await getDocs(collection(db, "clientes"));
-            clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                // Se não houver nada, cria exemplos e para por aqui (o reload virá depois)
+                if (produtos.length === 0) {
+                    await criarExemplos();
+                    return;
+                }
 
-            if (produtos.length === 0) await criarExemplos();
+                // Carrega clientes
+                const cliSnap = await getDocs(collection(db, "clientes"));
+                clientes = cliSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
-            vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                // Carrega vendas com proteção para caso a coleção não exista ou falte índice
+                try {
+                    const vndaSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
+                    vendas = vndaSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                } catch (vendaErr) {
+                    console.warn("Vendas ainda vazias ou sem índice.");
+                    vendas = [];
+                }
 
-            renderTudo();
-            document.getElementById('loading').style.opacity = '0';
-            setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
+                renderTudo();
+            } catch (error) {
+                console.error("Erro na conexão principal:", error);
+            } finally {
+                // GARANTE QUE O LOADING SUMA SEMPRE
+                const loader = document.getElementById('loading');
+                if(loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.style.display = 'none', 500);
+                }
+            }
         }
 
         async function criarExemplos() {
@@ -156,12 +181,17 @@
                 {nome: "Construtora Silva", whats: "11933333333"},
                 {nome: "Consumidor Final", whats: "00000000000"}
             ];
-            for(let p of exProds) await addDoc(collection(db, "produtos"), p);
-            for(let c of exClis) await addDoc(collection(db, "clientes"), c);
-            location.reload();
+            try {
+                for(let p of exProds) await addDoc(collection(db, "produtos"), p);
+                for(let c of exClis) await addDoc(collection(db, "clientes"), c);
+                location.reload(); 
+            } catch (e) {
+                console.error("Erro ao criar exemplos:", e);
+                // Se falhar (regras de segurança), tira o loading de qualquer jeito
+                document.getElementById('loading').style.display = 'none';
+            }
         }
 
-        // FUNÇÕES GLOBAIS (LIGADAS AO WINDOW)
         window.showTab = (tab) => {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tab).classList.remove('hidden');
@@ -239,7 +269,6 @@
 
         window.handleRemoverCarrinho = (i) => { carrinho.splice(i,1); renderCarrinho(); };
 
-        // RENDERS
         function renderTudo() {
             renderEstoque(); renderClientes(); renderPDV(); renderNfe(); atualizarDash();
         }
@@ -305,6 +334,7 @@
 
         function updateChart() {
             const ctx = document.getElementById('vendasChart').getContext('2d');
+            if(!ctx) return;
             const ultimas = vendas.slice(0, 5).reverse();
             if(myChart) myChart.destroy();
             myChart = new Chart(ctx, {
