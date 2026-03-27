@@ -35,6 +35,7 @@
             <nav class="flex-1 px-4 space-y-2">
                 <button onclick="showTab('dashboard')" id="btn-dashboard" class="w-full flex items-center p-4 rounded-2xl text-sm active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
+                <button onclick="showTab('financeiro')" id="btn-financeiro" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-hand-holding-dollar mr-3 text-green-400"></i> Financeiro</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-boxes mr-3"></i> Estoque</button>
             </nav>
@@ -50,9 +51,25 @@
             <div class="overflow-y-auto h-full pr-2 space-y-6">
                 <section id="tab-dashboard" class="tab-content">
                     <div class="grid grid-cols-3 gap-6 mb-6 text-center">
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Hoje</p><h2 class="text-2xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Totais</p><h2 class="text-2xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
                         <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-2xl font-black" id="dash-clientes-count">0</h2></div>
                         <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Produtos</p><h2 class="text-2xl font-black" id="dash-estoque-count">0</h2></div>
+                    </div>
+                </section>
+
+                <section id="tab-financeiro" class="tab-content hidden glass p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold uppercase tracking-tighter">Relatório de Vendas</h2>
+                        <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-xl font-black">Total: <span id="fin-total-geral text-xl">R$ 0,00</span></div>
+                    </div>
+                    <div class="glass p-6 mb-6 h-64">
+                        <canvas id="financeiroChart"></canvas>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead><tr class="opacity-40 uppercase border-b border-white/10"><th class="pb-4">Data/Hora</th><th class="pb-4">Cliente</th><th class="pb-4 text-right">Valor</th></tr></thead>
+                            <tbody id="corpoFinanceiro"></tbody>
+                        </table>
                     </div>
                 </section>
 
@@ -64,16 +81,13 @@
                         </div>
                         <div class="flex gap-4 items-end">
                             <div class="w-24"><label class="text-[10px] opacity-50 mb-2 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg hover:bg-blue-500 transition">Adicionar Item</button>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg">Adicionar Item</button>
                         </div>
-                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-[9px] uppercase text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
                     <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
-                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total a Pagar</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
-                        <div class="space-y-3">
-                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:bg-green-400 transition">Finalizar Venda</button>
-                            <button onclick="alert('Emitindo Nota Fiscal com NCM/IPI...')" class="w-full bg-white/10 py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-white/20 transition"><i class="fas fa-file-invoice-dollar mr-2"></i> Emitir Cupom/Nota</button>
-                        </div>
+                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total</p><h2 class="text-5xl font-black">R$ <span id="pdvTotal">0,00</span></h2></div>
+                        <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg">Finalizar Venda</button>
                     </div>
                 </section>
 
@@ -115,7 +129,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let produtos = [], clientes = [], vendas = [], carrinho = [];
+        let produtos = [], clientes = [], vendas = [], carrinho = [], finChart;
 
         window.tentarLogin = () => {
             if(document.getElementById('passInput').value === "123") {
@@ -131,16 +145,46 @@
             produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
             const cSnap = await getDocs(collection(db, "clientes"));
             clientes = cSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const vSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc")));
+            vendas = vSnap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderTudo();
         }
 
         window.showTab = (tabId) => {
             document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
             document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
+            const btn = document.getElementById('btn-' + tabId);
+            if(btn) btn.classList.add('active-tab');
             document.getElementById('tab-title').innerText = tabId.toUpperCase();
+            if(tabId === 'financeiro') renderFinanceiro();
         };
 
-        // PDV LOGIC
+        // --- LÓGICA FINANCEIRA ---
+        window.renderFinanceiro = () => {
+            let totalGeral = 0;
+            const corpo = document.getElementById('corpoFinanceiro');
+            corpo.innerHTML = vendas.map(v => {
+                totalGeral += v.total;
+                const data = new Date(v.data).toLocaleString('pt-BR');
+                return `<tr class="border-b border-white/5 hover:bg-white/5"><td class="py-4 opacity-70">${data}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right font-black text-green-400">R$ ${v.total.toFixed(2)}</td></tr>`;
+            }).join('');
+            document.getElementById('fin-total-geral text-xl').innerText = "R$ " + totalGeral.toFixed(2).replace('.', ',');
+
+            // Gráfico Financeiro
+            const ctx = document.getElementById('financeiroChart').getContext('2d');
+            if(finChart) finChart.destroy();
+            finChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: vendas.slice(0,7).reverse().map(v => new Date(v.data).toLocaleDateString()),
+                    datasets: [{ label: 'Vendas (R$)', data: vendas.slice(0,7).reverse().map(v => v.total), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } } } }
+            });
+        };
+
+        // --- PDV ---
         window.handleAdicionarAoCarrinho = () => {
             const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
             const qtd = parseInt(document.getElementById('pdvQtd').value);
@@ -154,20 +198,20 @@
             let total = 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
                 total += c.subtotal;
-                return `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-[10px]">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right"><i class="fas fa-times text-red-400 p-2 cursor-pointer" onclick="carrinho.splice(${i},1);renderCarrinho()"></i></td></tr>`;
+                return `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-[10px]">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`;
             }).join('');
             document.getElementById('pdvTotal').innerText = total.toFixed(2).replace('.', ',');
         };
 
         window.handleFinalizarVenda = async () => {
-            if(carrinho.length === 0) return alert("Carrinho vazio!");
+            if(carrinho.length === 0) return;
             const venda = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b) => a+b.subtotal,0), data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), venda);
             for(let item of carrinho) { await updateDoc(doc(db, "produtos", item.id), { qtd: item.qtd - item.qtdVenda }); }
-            carrinho = []; carregarDadosIniciais(); alert("Venda Finalizada com Sucesso!");
+            carrinho = []; carregarDadosIniciais(); alert("Venda Finalizada!");
         };
 
-        // PRODUTOS & CLIENTES
+        // --- ESTOQUE E CLIENTES ---
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
             const dados = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value) || 0, preco: parseFloat(document.getElementById('estPreco').value) || 0, ncm: document.getElementById('estNcm').value || "", ipi: document.getElementById('estIpi').value || "" };
@@ -193,25 +237,13 @@
         window.handleDeletar = async (col, id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="border-b border-white/5 hover:bg-white/5">
-                    <td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')"><span class="font-bold text-xs uppercase">${p.nome}</span><br><span class="text-[9px] text-blue-400">NCM: ${p.ncm || '--'} | IPI: ${p.ipi || '0'}%</span></td>
-                    <td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td>
-                    <td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
-                </tr>`).join('');
-
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `
-                <tr class="border-b border-white/5">
-                    <td class="p-4 cursor-pointer" onclick="prepararEdicaoCli('${c.id}')"><span class="font-bold text-xs uppercase">${c.nome}</span></td>
-                    <td class="p-4 text-blue-300 font-bold">${c.whats}</td>
-                    <td class="p-4 text-right flex justify-end gap-2">
-                        <button onclick="window.open('https://wa.me/${c.whats.replace(/\D/g, '')}', '_blank')" class="text-green-400 p-2"><i class="fab fa-whatsapp"></i></button>
-                        <button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>`).join('');
-            
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')"><span class="font-bold text-xs uppercase">${p.nome}</span><br><span class="text-[9px] text-blue-400">NCM: ${p.ncm || '--'} | IPI: ${p.ipi || '0'}%</span></td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="p-4 uppercase text-xs font-bold">${c.nome}</td><td class="p-4 text-blue-300 font-bold">${c.whats}</td><td class="p-4 text-right flex justify-end gap-2"><button onclick="window.open('https://wa.me/${c.whats.replace(/\D/g, '')}', '_blank')" class="text-green-400"><i class="fab fa-whatsapp"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} (Estoque: ${p.qtd})</option>`).join('');
+            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.qtd})</option>`).join('');
+            
+            const totalVendas = vendas.reduce((a,b) => a+b.total,0);
+            document.getElementById('dash-vendas-total').innerText = "R$ " + totalVendas.toFixed(2).replace('.', ',');
             document.getElementById('dash-estoque-count').innerText = produtos.length;
             document.getElementById('dash-clientes-count').innerText = clientes.length;
         }
@@ -219,7 +251,6 @@
         function limparForms() {
             document.querySelectorAll('input').forEach(i => i.value = '');
             document.getElementById('btnSalvarProd').innerText = "Salvar";
-            document.getElementById('editProdId').value = '';
         }
     </script>
 </body>
