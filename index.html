@@ -15,11 +15,8 @@
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
         .active-tab { background: rgba(59, 130, 246, 0.2) !important; border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
-        
-        /* ESTILO DO LOGIN REFORÇADO */
-        #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; visibility: visible; opacity: 1; transition: 0.3s; }
+        #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
         .logo-img { max-width: 180px; margin: 0 auto; filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3)); }
-        .edit-hint { font-size: 10px; opacity: 0.4; }
     </style>
 </head>
 <body>
@@ -47,45 +44,56 @@
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
             <header class="glass p-5 px-8 flex justify-between items-center mb-4">
                 <h1 id="tab-title" class="text-lg font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
-                <div id="status-cloud" class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-check-circle mr-2"></i> Online</div>
+                <div class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-check-circle mr-2"></i> Sistema Ativo</div>
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
                 <section id="tab-dashboard" class="tab-content">
                     <div class="grid grid-cols-3 gap-6 mb-6 text-center">
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas</p><h2 class="text-2xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Hoje</p><h2 class="text-2xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
                         <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-2xl font-black" id="dash-clientes-count">0</h2></div>
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Itens</p><h2 class="text-2xl font-black" id="dash-estoque-count">0</h2></div>
+                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Produtos</p><h2 class="text-2xl font-black" id="dash-estoque-count">0</h2></div>
+                    </div>
+                </section>
+
+                <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass p-8 space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-[10px] opacity-50 mb-2 block uppercase">Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div><label class="text-[10px] opacity-50 mb-2 block uppercase">Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                        </div>
+                        <div class="flex gap-4 items-end">
+                            <div class="w-24"><label class="text-[10px] opacity-50 mb-2 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl shadow-lg hover:bg-blue-500 transition">Adicionar Item</button>
+                        </div>
+                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-[9px] uppercase text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                    </div>
+                    <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
+                        <div><p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total a Pagar</p><h2 class="text-5xl font-black tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2></div>
+                        <div class="space-y-3">
+                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:bg-green-400 transition">Finalizar Venda</button>
+                            <button onclick="alert('Emitindo Nota Fiscal com NCM/IPI...')" class="w-full bg-white/10 py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-white/20 transition"><i class="fas fa-file-invoice-dollar mr-2"></i> Emitir Cupom/Nota</button>
+                        </div>
                     </div>
                 </section>
 
                 <section id="tab-estoque" class="tab-content hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <input type="hidden" id="editProdId">
-                        <input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl border-blue-500/30">
-                        <input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl border-blue-500/30">
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
+                        <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
+                        <input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl border-blue-500/30"><input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl border-blue-500/30">
                         <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar</button>
                     </div>
-                    <table class="w-full text-left">
-                        <tbody id="corpoEstoque"></tbody>
-                    </table>
+                    <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="tab-content hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <input type="hidden" id="editCliId">
-                        <input type="text" id="cliNome" placeholder="Nome" class="p-4 rounded-xl outline-none">
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome" class="p-4 rounded-xl outline-none">
                         <input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none">
                         <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Salvar</button>
                     </div>
                     <table class="w-full text-left"><tbody id="corpoClientes"></tbody></table>
-                </section>
-                
-                <section id="tab-pdv" class="tab-content hidden glass p-8">
-                     <p class="text-center opacity-50 py-10">Módulo de Vendas carregando...</p>
                 </section>
             </div>
         </main>
@@ -107,20 +115,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let produtos = [], clientes = [], vendas = [];
+        let produtos = [], clientes = [], vendas = [], carrinho = [];
 
-        // --- LOGIN FORÇADO ---
         window.tentarLogin = () => {
-            const senha = document.getElementById('passInput').value;
-            if(senha === "123") {
-                // Remove o login e mostra o app usando JS Puro para evitar falhas do Tailwind
+            if(document.getElementById('passInput').value === "123") {
                 document.getElementById('login-screen').setAttribute('style', 'display:none !important');
                 document.getElementById('app-content').setAttribute('style', 'display:flex !important');
                 carregarDadosIniciais();
                 window.showTab('dashboard');
-            } else {
-                alert("Senha incorreta!");
-            }
+            } else { alert("Senha incorreta!"); }
         };
 
         async function carregarDadosIniciais() {
@@ -137,66 +140,63 @@
             document.getElementById('tab-title').innerText = tabId.toUpperCase();
         };
 
-        // --- FUNÇÕES DE PRODUTO ---
+        // PDV LOGIC
+        window.handleAdicionarAoCarrinho = () => {
+            const p = produtos.find(item => item.id === document.getElementById('pdvSelect').value);
+            const qtd = parseInt(document.getElementById('pdvQtd').value);
+            if(p && p.qtd >= qtd) {
+                carrinho.push({...p, qtdVenda: qtd, subtotal: p.preco * qtd});
+                renderCarrinho();
+            } else { alert("Estoque insuficiente!"); }
+        };
+
+        window.renderCarrinho = () => {
+            let total = 0;
+            document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => {
+                total += c.subtotal;
+                return `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-[10px]">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right"><i class="fas fa-times text-red-400 p-2 cursor-pointer" onclick="carrinho.splice(${i},1);renderCarrinho()"></i></td></tr>`;
+            }).join('');
+            document.getElementById('pdvTotal').innerText = total.toFixed(2).replace('.', ',');
+        };
+
+        window.handleFinalizarVenda = async () => {
+            if(carrinho.length === 0) return alert("Carrinho vazio!");
+            const venda = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b) => a+b.subtotal,0), data: new Date().toISOString() };
+            await addDoc(collection(db, "vendas"), venda);
+            for(let item of carrinho) { await updateDoc(doc(db, "produtos", item.id), { qtd: item.qtd - item.qtdVenda }); }
+            carrinho = []; carregarDadosIniciais(); alert("Venda Finalizada com Sucesso!");
+        };
+
+        // PRODUTOS & CLIENTES
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
-            const dados = { 
-                nome: document.getElementById('estNome').value, 
-                qtd: parseInt(document.getElementById('estQtd').value) || 0,
-                preco: parseFloat(document.getElementById('estPreco').value) || 0,
-                ncm: document.getElementById('estNcm').value || "",
-                ipi: document.getElementById('estIpi').value || ""
-            };
-            if(!dados.nome) return;
+            const dados = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value) || 0, preco: parseFloat(document.getElementById('estPreco').value) || 0, ncm: document.getElementById('estNcm').value || "", ipi: document.getElementById('estIpi').value || "" };
             id ? await updateDoc(doc(db, "produtos", id), dados) : await addDoc(collection(db, "produtos"), dados);
-            carregarDadosIniciais();
-            limparForms();
+            carregarDadosIniciais(); limparForms();
+        };
+
+        window.handleSalvarCliente = async () => {
+            const id = document.getElementById('editCliId').value;
+            const dados = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value };
+            id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
+            carregarDadosIniciais(); limparForms();
         };
 
         window.prepararEdicaoProd = (id) => {
             const p = produtos.find(x => x.id === id);
-            document.getElementById('editProdId').value = p.id;
-            document.getElementById('estNome').value = p.nome;
-            document.getElementById('estQtd').value = p.qtd;
-            document.getElementById('estPreco').value = p.preco;
-            document.getElementById('estNcm').value = p.ncm || '';
-            document.getElementById('estIpi').value = p.ipi || '';
+            document.getElementById('editProdId').value = p.id; document.getElementById('estNome').value = p.nome;
+            document.getElementById('estQtd').value = p.qtd; document.getElementById('estPreco').value = p.preco;
+            document.getElementById('estNcm').value = p.ncm || ''; document.getElementById('estIpi').value = p.ipi || '';
             document.getElementById('btnSalvarProd').innerText = "Atualizar";
         };
 
-        // --- FUNÇÕES DE CLIENTE ---
-        window.handleSalvarCliente = async () => {
-            const id = document.getElementById('editCliId').value;
-            const dados = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value };
-            if(!dados.nome) return;
-            id ? await updateDoc(doc(db, "clientes", id), dados) : await addDoc(collection(db, "clientes"), dados);
-            carregarDadosIniciais();
-            limparForms();
-        };
-
-        window.prepararEdicaoCli = (id) => {
-            const c = clientes.find(x => x.id === id);
-            document.getElementById('editCliId').value = c.id;
-            document.getElementById('cliNome').value = c.nome;
-            document.getElementById('cliWhats').value = c.whats;
-            document.getElementById('btnSalvarCli').innerText = "Atualizar";
-        };
-
-        window.handleDeletar = async (col, id) => {
-            if(confirm("Excluir?")) {
-                await deleteDoc(doc(db, col, id));
-                carregarDadosIniciais();
-            }
-        };
+        window.handleDeletar = async (col, id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `
-                <tr class="border-b border-white/5">
-                    <td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')">
-                        <span class="font-bold text-xs uppercase">${p.nome}</span><br>
-                        <span class="edit-hint text-blue-400">NCM: ${p.ncm || '--'} | IPI: ${p.ipi || '0'}%</span>
-                    </td>
-                    <td class="p-4">${p.qtd} UN</td><td class="p-4">R$ ${p.preco.toFixed(2)}</td>
+                <tr class="border-b border-white/5 hover:bg-white/5">
+                    <td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')"><span class="font-bold text-xs uppercase">${p.nome}</span><br><span class="text-[9px] text-blue-400">NCM: ${p.ncm || '--'} | IPI: ${p.ipi || '0'}%</span></td>
+                    <td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td>
                     <td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td>
                 </tr>`).join('');
 
@@ -205,11 +205,13 @@
                     <td class="p-4 cursor-pointer" onclick="prepararEdicaoCli('${c.id}')"><span class="font-bold text-xs uppercase">${c.nome}</span></td>
                     <td class="p-4 text-blue-300 font-bold">${c.whats}</td>
                     <td class="p-4 text-right flex justify-end gap-2">
-                        <button onclick="window.open('https://wa.me/${c.whats.replace(/\D/g, '')}', '_blank')" class="text-green-400"><i class="fab fa-whatsapp"></i></button>
+                        <button onclick="window.open('https://wa.me/${c.whats.replace(/\D/g, '')}', '_blank')" class="text-green-400 p-2"><i class="fab fa-whatsapp"></i></button>
                         <button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>`).join('');
             
+            document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
+            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} (Estoque: ${p.qtd})</option>`).join('');
             document.getElementById('dash-estoque-count').innerText = produtos.length;
             document.getElementById('dash-clientes-count').innerText = clientes.length;
         }
@@ -217,7 +219,7 @@
         function limparForms() {
             document.querySelectorAll('input').forEach(i => i.value = '');
             document.getElementById('btnSalvarProd').innerText = "Salvar";
-            document.getElementById('btnSalvarCli').innerText = "Salvar";
+            document.getElementById('editProdId').value = '';
         }
     </script>
 </body>
