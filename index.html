@@ -140,7 +140,7 @@
         let produtos = [], clientes = [], vendas = [], carrinho = [], finChart;
 
         // Login Blindado (Intacto)
-        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123") { document.getElementById('login-screen').setAttribute('style', 'display:none !important'); document.getElementById('app-content').setAttribute('style', 'display:flex !important'); carregarDadosIniciais(); window.showTab('dashboard'); } else { alert("Senha incorreta!"); } };
+        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').setAttribute('style', 'display:none !important'); document.getElementById('app-content').setAttribute('style', 'display:flex !important'); carregarDadosIniciais(); window.showTab('dashboard'); } else { alert("Senha incorreta!"); } };
 
         async function carregarDadosIniciais() { const pSnap = await getDocs(collection(db, "produtos")); produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() })); const cSnap = await getDocs(collection(db, "clientes")); clientes = cSnap.docs.map(d => ({ id: d.id, ...d.data() })); const vSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc"))); vendas = vSnap.docs.map(d => ({ id: d.id, ...d.data() })); renderTudo(); }
 
