@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLAC Drywall - Gestão Nuvem</title>
-    <link rel="icon" type="image/png" href="Logo.png" />
-    <link rel="apple-touch-icon" href="Logo.png" />
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="apple-touch-icon" href="logo.png" />
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -19,13 +20,16 @@
         .sidebar-item { cursor: pointer; transition: 0.3s; }
         .sidebar-item:hover { background: rgba(255,255,255,0.1); }
         .edit-hint { font-size: 10px; opacity: 0.4; display: block; }
+        .logo-img { max-width: 180px; margin: 0 auto; filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3)); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
-            <div class="mb-6"><span class="text-4xl font-black text-blue-500 tracking-tighter">PLAC</span></div>
+            <div class="mb-8">
+                <img src="logo.png" alt="PLAC Drywall" class="logo-img">
+            </div>
             <input type="password" id="passInput" placeholder="Senha" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
             <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg">Entrar</button>
         </div>
@@ -33,7 +37,9 @@
 
     <div id="app-content" class="h-screen flex hidden">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-8 border-b border-white/10 mb-4 text-center"><span class="font-black text-2xl tracking-tighter text-blue-400">PLAC</span></div>
+            <div class="p-6 border-b border-white/10 mb-4 text-center">
+                <img src="logo.png" alt="Logo PLAC" class="w-32 mx-auto">
+            </div>
             <nav class="flex-1 px-4 space-y-2">
                 <button onclick="showTab('dashboard')" id="btn-dashboard" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
