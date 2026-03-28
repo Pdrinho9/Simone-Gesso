@@ -12,17 +12,11 @@
         :root { --plac-blue: #0d1b3e; --plac-accent: #3b82f6; }
         body { background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%); background-attachment: fixed; min-height: 100vh; color: white; font-family: sans-serif; font-size: 13px; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
-        
-        /* AJUSTE VISUAL PARA TELAS MENORES */
         .nav-btn { width: 100%; display: flex; align-items: center; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; transition: all 0.3s; margin-bottom: 4px; }
         .nav-btn:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(5px); }
         .active-tab { background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%) !important; border-left: 4px solid var(--plac-accent) !important; }
-        
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; height: 38px; padding: 0 10px !important; border-radius: 8px !important; font-size: 12px !important; }
-        
         #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
-        
-        /* ÁREA DE IMPRESSÃO */
         #print-area { display: none; background: white !important; color: black !important; }
         @media print {
             body * { visibility: hidden; }
@@ -166,7 +160,6 @@
             if(tabId === 'financeiro') renderFinanceiro(); 
         };
 
-        // FUNÇÃO DE IMPRESSÃO
         function dispararImpressao(v, titulo) {
             document.getElementById('print-content').innerHTML = `
                 <div style="text-align:center;font-weight:bold;margin-bottom:10px;text-transform:uppercase;">${titulo}</div>
@@ -186,9 +179,9 @@
         }
 
         window.imprimirOrcamento = () => {
-            if(carrinho.length === 0) return alert("Adicione itens ao carrinho!");
-            const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
-            const orc = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, itens: carrinho, data: new Date().toISOString() };
+            if(carrinho.length === 0) return alert("Adicione itens!");
+            const f = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            const orc = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + f, frete: f, itens: carrinho, data: new Date().toISOString() };
             dispararImpressao(orc, "ORÇAMENTO DE VENDA");
         };
 
@@ -249,8 +242,10 @@
             carregarDadosIniciais();
         };
 
-        // EDITAR PRODUTO
-        window.prepararEdicaoProd = (p) => {
+        // EDITAR PRODUTO (NO LÁPIS)
+        window.prepararEdicaoProd = (id) => {
+            const p = produtos.find(item => item.id === id);
+            if(!p) return;
             document.getElementById('editProdId').value = p.id;
             document.getElementById('estNome').value = p.nome;
             document.getElementById('estQtd').value = p.qtd;
@@ -268,8 +263,10 @@
             limparForms(); carregarDadosIniciais();
         };
 
-        // EDITAR CLIENTE
-        window.prepararEdicaoCli = (c) => {
+        // EDITAR CLIENTE (NO LÁPIS)
+        window.prepararEdicaoCli = (id) => {
+            const c = clientes.find(item => item.id === id);
+            if(!c) return;
             document.getElementById('editCliId').value = c.id;
             document.getElementById('cliNome').value = c.nome;
             document.getElementById('cliWhats').value = c.whats;
@@ -289,8 +286,9 @@
         window.handleDeletar = async (col, id) => { if(confirm("Deseja mesmo excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5 cursor-pointer hover:bg-white/5" onclick="prepararEdicaoProd(${JSON.stringify(p).replace(/"/g, '&quot;')})"><td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td><td class="text-center">${p.qtd}</td><td class="text-right">R$ ${p.preco.toFixed(2)}</td><td class="text-right"><button onclick="event.stopPropagation();handleDeletar('produtos', '${p.id}')"><i class="fas fa-trash text-red-500 opacity-20"></i></button></td></tr>`).join('');
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5 cursor-pointer hover:bg-white/5" onclick="prepararEdicaoCli(${JSON.stringify(c).replace(/"/g, '&quot;')})"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right"><button onclick="event.stopPropagation();handleDeletar('clientes', '${c.id}')"><i class="fas fa-trash text-red-500 opacity-20"></i></button></td></tr>`).join('');
+            // Render com Ícones de Editar/Excluir Juntos
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td><td class="text-center">${p.qtd}</td><td class="text-right">R$ ${p.preco.toFixed(2)}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoProd('${p.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoCli('${c.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
             document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
