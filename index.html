@@ -13,16 +13,16 @@
         body { background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%); background-attachment: fixed; min-height: 100vh; color: white; font-family: sans-serif; font-size: 13px; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
         
-        /* AJUSTE DE TAMANHO DAS ABAS */
+        /* AJUSTE VISUAL PARA TELAS MENORES */
         .nav-btn { width: 100%; display: flex; align-items: center; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; transition: all 0.3s; margin-bottom: 4px; }
         .nav-btn:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(5px); }
         .active-tab { background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%) !important; border-left: 4px solid var(--plac-accent) !important; }
         
-        input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; height: 42px; padding: 0 12px !important; border-radius: 10px !important; font-size: 12px !important; }
+        input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; height: 38px; padding: 0 10px !important; border-radius: 8px !important; font-size: 12px !important; }
         
         #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
         
-        /* ÁREA DE IMPRESSÃO (LIMPA) */
+        /* ÁREA DE IMPRESSÃO */
         #print-area { display: none; background: white !important; color: black !important; }
         @media print {
             body * { visibility: hidden; }
@@ -36,7 +36,7 @@
     <div id="print-area">
         <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 15px;">
             <h2 style="margin:0">PLAC DRYWALL</h2>
-            <p style="font-size: 11px; margin: 5px 0;">Rua Neuza Francisca dos Santos, 434 - Jd. Recanto dos Sonhos - Sumaré/SP</p>
+            <p style="font-size: 11px; margin: 5px 0;">Rua Neuza Francisca dos Santos, 434 - Sumaré/SP</p>
             <p style="font-size: 11px; font-weight: bold;">WhatsApp: (19) 98814-7888</p>
         </div>
         <div id="print-content" style="color: black;"></div>
@@ -70,11 +70,12 @@
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-4">
+                
                 <section id="tab-dashboard" class="tab-content">
                     <div class="grid grid-cols-3 gap-4 mb-4">
                         <div class="glass p-6 text-center border-b-4 border-blue-500"><p class="text-[9px] uppercase opacity-50 mb-1">Faturamento</p><h2 class="text-xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
                         <div class="glass p-6 text-center border-b-4 border-purple-500"><p class="text-[9px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-xl font-black" id="dash-clientes-count">0</h2></div>
-                        <div class="glass p-6 text-center border-b-4 border-orange-500"><p class="text-[9px] uppercase opacity-50 mb-1">Estoque</p><h2 class="text-xl font-black" id="dash-estoque-count">0</h2></div>
+                        <div class="glass p-6 text-center border-b-4 border-orange-500"><p class="text-[9px] uppercase opacity-50 mb-1">Itens</p><h2 class="text-xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
                 </section>
 
@@ -97,31 +98,31 @@
                         </div>
                         <div class="flex gap-3 items-end">
                             <div class="w-20"><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Adicionar</button>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
                         </div>
-                        <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Unit.</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                        <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Preço</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
                     <div class="glass p-6 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
                         <div>
-                            <p class="text-[9px] uppercase font-bold opacity-50 mb-1">Total</p>
+                            <p class="text-[9px] uppercase font-bold opacity-50 mb-1 text-blue-400">Total da Venda</p>
                             <h2 class="text-4xl font-black mb-4 tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
-                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-yellow-500">Frete (R$)</label>
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-yellow-500">Valor do Frete (R$)</label>
                             <input type="number" id="pdvFrete" value="0" oninput="renderCarrinho()" class="w-full mb-3">
-                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold">Pagamento</label>
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold">Forma de Pagamento</label>
                             <select id="pdvPagamento" class="w-full mb-4"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
                         </div>
                         <div class="space-y-2">
-                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-4 rounded-2xl font-black text-lg uppercase shadow-lg">Finalizar</button>
-                            <button id="btnWhatsapp" onclick="enviarWhatsApp()" style="display:none;" class="w-full bg-green-600 py-3 rounded-xl font-bold uppercase text-[9px]"><i class="fab fa-whatsapp mr-1"></i> WhatsApp</button>
-                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Orçamento</button>
+                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-4 rounded-2xl font-black text-lg uppercase shadow-lg">Finalizar e Imprimir</button>
+                            <button id="btnWhatsapp" onclick="enviarWhatsApp()" style="display:none;" class="w-full bg-green-600 py-3 rounded-xl font-bold uppercase text-[9px]"><i class="fab fa-whatsapp mr-1"></i> Enviar Comprovante</button>
+                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Imprimir Orçamento</button>
                         </div>
                     </div>
                 </section>
 
                 <section id="tab-estoque" class="tab-content hidden glass p-6">
                     <div class="grid grid-cols-3 gap-3 mb-6">
-                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto"><input type="number" id="estQtd" placeholder="Qtd">
-                        <input type="number" id="estPreco" placeholder="Preço"><input type="text" id="estNcm" placeholder="NCM"><input type="number" id="estIpi" placeholder="IPI %">
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto"><input type="number" id="estQtd" placeholder="Qtd">
+                        <input type="number" id="estPreco" placeholder="Preço Venda"><input type="text" id="estNcm" placeholder="NCM"><input type="number" id="estIpi" placeholder="IPI %">
                         <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-lg uppercase text-[10px] p-2">Salvar</button>
                     </div>
                     <table class="w-full text-left text-xs"><tbody id="corpoEstoque" class="divide-y divide-white/5"></tbody></table>
@@ -129,8 +130,8 @@
 
                 <section id="tab-clientes" class="tab-content hidden glass p-6">
                     <div class="grid grid-cols-2 gap-3 mb-6">
-                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome"><input type="text" id="cliWhats" placeholder="WhatsApp">
-                        <input type="text" id="cliCpf" placeholder="CPF/CNPJ"><input type="text" id="cliEndereco" placeholder="Endereço">
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome Completo"><input type="text" id="cliWhats" placeholder="WhatsApp (DDD)">
+                        <input type="text" id="cliCpf" placeholder="CPF/CNPJ"><input type="text" id="cliEndereco" placeholder="Endereço de Entrega">
                         <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="col-span-2 bg-green-600 font-bold rounded-lg uppercase text-[10px] p-2">Salvar Cliente</button>
                     </div>
                     <table class="w-full text-left text-xs"><tbody id="corpoClientes" class="divide-y divide-white/5"></tbody></table>
@@ -148,7 +149,7 @@
 
         let produtos = [], clientes = [], vendas = [], carrinho = [], ultimaVendaSalva = null;
 
-        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else alert("Senha incorreta!"); };
+        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else alert("Acesso Negado!"); };
 
         async function carregarDadosIniciais() { 
             const pSnap = await getDocs(collection(db, "produtos")); produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
@@ -165,32 +166,42 @@
             if(tabId === 'financeiro') renderFinanceiro(); 
         };
 
-        function imprimirCupom(v, t) {
+        // FUNÇÃO DE IMPRESSÃO
+        function dispararImpressao(v, titulo) {
             document.getElementById('print-content').innerHTML = `
-                <div style="text-align:center;font-weight:bold;margin-bottom:10px;">${t}</div>
-                <p style="font-size:10px">Data: ${new Date(v.data).toLocaleString()}</p>
-                <p style="font-size:10px">Cliente: ${v.cliente}</p>
-                <table style="width:100%;font-size:10px;border-top:1px dashed #000;">
-                    ${v.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qtdVenda}x R$ ${i.preco.toFixed(2)}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}
+                <div style="text-align:center;font-weight:bold;margin-bottom:10px;text-transform:uppercase;">${titulo}</div>
+                <p style="font-size:10px"><b>DATA:</b> ${new Date(v.data).toLocaleString()}</p>
+                <p style="font-size:10px"><b>CLIENTE:</b> ${v.cliente}</p>
+                <table style="width:100%;font-size:10px;border-top:1px dashed #000;margin-top:10px">
+                    <thead><tr><th style="text-align:left">Item</th><th style="text-align:center">Qtd</th><th style="text-align:right">Total</th></tr></thead>
+                    <tbody>${v.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qtdVenda}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
                 <div style="text-align:right;border-top:1px solid #000;margin-top:5px;font-size:10px">
-                    <p>Subtotal: R$ ${v.itens.reduce((a,b)=>a+b.subtotal,0).toFixed(2)}</p>
-                    <p>Frete: R$ ${parseFloat(v.frete || 0).toFixed(2)}</p>
+                    <p>Subtotal: R$ ${(v.total - (v.frete || 0)).toFixed(2)}</p>
+                    <p>Frete: R$ ${(v.frete || 0).toFixed(2)}</p>
                     <h3 style="font-size:14px;margin:0">TOTAL: R$ ${v.total.toFixed(2)}</h3>
+                    <p style="font-size:9px">Pagamento: ${v.pagamento || 'N/A'}</p>
                 </div>`;
             window.print();
         }
 
+        window.imprimirOrcamento = () => {
+            if(carrinho.length === 0) return alert("Adicione itens ao carrinho!");
+            const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            const orc = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, itens: carrinho, data: new Date().toISOString() };
+            dispararImpressao(orc, "ORÇAMENTO DE VENDA");
+        };
+
         window.handleAdicionarAoCarrinho = () => { 
             const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); 
             const q = parseInt(document.getElementById('pdvQtd').value); 
-            if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else alert("Estoque baixo!"); 
+            if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else alert("Estoque insuficiente!"); 
         };
 
         window.renderCarrinho = () => { 
             let t = 0; let f = parseFloat(document.getElementById('pdvFrete').value) || 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { 
-                t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-2 font-bold uppercase text-blue-300 text-[9px]">${c.nome}</td><td class="text-center">R$ ${c.preco.toFixed(2)}</td><td class="text-center">${c.qtdVenda}</td><td class="text-right">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-trash text-red-500 cursor-pointer p-1"></i></td></tr>`; 
+                t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-2 text-blue-300 font-bold uppercase">${c.nome}</td><td class="text-center">R$ ${c.preco.toFixed(2)}</td><td class="text-center">${c.qtdVenda}</td><td class="text-right font-bold">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-trash text-red-500 cursor-pointer p-1"></i></td></tr>`; 
             }).join(''); 
             document.getElementById('pdvTotal').innerText = (t + f).toFixed(2).replace('.', ','); 
         };
@@ -202,7 +213,7 @@
             await addDoc(collection(db, "vendas"), v);
             for(let i of carrinho) await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda });
             ultimaVendaSalva = v; document.getElementById('btnWhatsapp').style.display = 'block';
-            imprimirCupom(v, "COMPROVANTE DE VENDA");
+            dispararImpressao(v, "COMPROVANTE DE VENDA");
             carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
         };
 
@@ -210,10 +221,9 @@
             if(!ultimaVendaSalva) return;
             const cli = clientes.find(c => c.nome === ultimaVendaSalva.cliente);
             const num = cli ? cli.whats.replace(/\D/g,'') : '';
-            let msg = `*COMPROVANTE PLAC DRYWALL*\n\n`;
-            msg += `Cliente: ${ultimaVendaSalva.cliente}\n\n`;
+            let msg = `*PLAC DRYWALL - COMPROVANTE*\n\n`;
             ultimaVendaSalva.itens.forEach(i => msg += `• ${i.nome} (${i.qtdVenda}x R$ ${i.preco.toFixed(2)}) = R$ ${i.subtotal.toFixed(2)}\n`);
-            msg += `\n*Frete:* R$ ${parseFloat(ultimaVendaSalva.frete).toFixed(2)}\n*TOTAL:* R$ ${ultimaVendaSalva.total.toFixed(2)}`;
+            msg += `\n*Frete:* R$ ${ultimaVendaSalva.frete.toFixed(2)}\n*TOTAL:* R$ ${ultimaVendaSalva.total.toFixed(2)}`;
             window.open(`https://api.whatsapp.com/send?phone=55${num}&text=${encodeURIComponent(msg)}`, '_blank');
         };
 
@@ -221,37 +231,66 @@
             let total = 0; const corpo = document.getElementById('corpoFinanceiro');
             corpo.innerHTML = vendas.map(v => { 
                 total += v.total; 
-                return `<tr class="border-b border-white/5"><td class="py-3">${new Date(v.data).toLocaleDateString()}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right text-green-400">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
+                return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString()}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
             }).join('');
             document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
         };
 
         window.estornarVenda = async (id) => {
-            if(!confirm("Excluir venda?")) return;
+            if(!confirm("Excluir venda e devolver estoque?")) return;
             const v = vendas.find(x => x.id === id);
-            for(let i of v.itens) { const p = produtos.find(prod => prod.id === i.id); if(p) await updateDoc(doc(db, "produtos", i.id), { qtd: p.qtd + i.qtdVenda }); }
-            await deleteDoc(doc(db, "vendas", id)); carregarDadosIniciais();
+            if(v && v.itens) {
+                for(let i of v.itens) { 
+                    const p = produtos.find(prod => prod.id === i.id); 
+                    if(p) await updateDoc(doc(db, "produtos", i.id), { qtd: p.qtd + i.qtdVenda }); 
+                }
+            }
+            await deleteDoc(doc(db, "vendas", id));
+            carregarDadosIniciais();
+        };
+
+        // EDITAR PRODUTO
+        window.prepararEdicaoProd = (p) => {
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('estNome').value = p.nome;
+            document.getElementById('estQtd').value = p.qtd;
+            document.getElementById('estPreco').value = p.preco;
+            document.getElementById('estNcm').value = p.ncm || '';
+            document.getElementById('estIpi').value = p.ipi || '';
+            document.getElementById('btnSalvarProd').innerText = "Atualizar";
         };
 
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
             const d = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value)||0, preco: parseFloat(document.getElementById('estPreco').value)||0, ncm: document.getElementById('estNcm').value||'', ipi: document.getElementById('estIpi').value||'' };
             id ? await updateDoc(doc(db, "produtos", id), d) : await addDoc(collection(db, "produtos"), d);
+            document.getElementById('btnSalvarProd').innerText = "Salvar";
             limparForms(); carregarDadosIniciais();
+        };
+
+        // EDITAR CLIENTE
+        window.prepararEdicaoCli = (c) => {
+            document.getElementById('editCliId').value = c.id;
+            document.getElementById('cliNome').value = c.nome;
+            document.getElementById('cliWhats').value = c.whats;
+            document.getElementById('cliCpf').value = c.cpf || '';
+            document.getElementById('cliEndereco').value = c.endereco || '';
+            document.getElementById('btnSalvarCli').innerText = "Atualizar Cliente";
         };
 
         window.handleSalvarCliente = async () => {
             const id = document.getElementById('editCliId').value;
             const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value||'', endereco: document.getElementById('cliEndereco').value||'' };
             id ? await updateDoc(doc(db, "clientes", id), d) : await addDoc(collection(db, "clientes"), d);
+            document.getElementById('btnSalvarCli').innerText = "Salvar Cliente";
             limparForms(); carregarDadosIniciais();
         };
 
-        window.handleDeletar = async (col, id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
+        window.handleDeletar = async (col, id) => { if(confirm("Deseja mesmo excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-2 font-bold text-blue-200 text-[11px]">${p.nome}</td><td class="text-[11px]">${p.qtd}</td><td class="text-[11px]">R$ ${p.preco.toFixed(2)}</td><td class="text-right"><button onclick="handleDeletar('produtos', '${p.id}')"><i class="fas fa-trash text-red-500 opacity-20 hover:opacity-100"></i></button></td></tr>`).join('');
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 font-bold uppercase text-[11px]">${c.nome}</td><td class="text-[11px]">${c.whats}</td><td class="text-right"><button onclick="handleDeletar('clientes', '${c.id}')"><i class="fas fa-trash text-red-500 opacity-20 hover:opacity-100"></i></button></td></tr>`).join('');
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5 cursor-pointer hover:bg-white/5" onclick="prepararEdicaoProd(${JSON.stringify(p).replace(/"/g, '&quot;')})"><td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td><td class="text-center">${p.qtd}</td><td class="text-right">R$ ${p.preco.toFixed(2)}</td><td class="text-right"><button onclick="event.stopPropagation();handleDeletar('produtos', '${p.id}')"><i class="fas fa-trash text-red-500 opacity-20"></i></button></td></tr>`).join('');
+            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5 cursor-pointer hover:bg-white/5" onclick="prepararEdicaoCli(${JSON.stringify(c).replace(/"/g, '&quot;')})"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right"><button onclick="event.stopPropagation();handleDeletar('clientes', '${c.id}')"><i class="fas fa-trash text-red-500 opacity-20"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
             document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
