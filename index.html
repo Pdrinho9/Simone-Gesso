@@ -15,122 +15,130 @@
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
         .active-tab { background: rgba(59, 130, 246, 0.2) !important; border-left: 4px solid #3b82f6; }
         input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+        
         #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
         .logo-img { max-width: 180px; margin: 0 auto; filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3)); }
 
-        /* ESTILO PARA IMPRESSÃO */
-        #print-area { display: none; color: black !important; background: white !important; }
+        /* AJUSTE IMPRESSÃO - CORREÇÃO TELA ESCURA */
+        #print-area { display: none; }
         @media print {
-            body * { visibility: hidden; }
-            #print-area, #print-area * { visibility: visible; }
-            #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; }
+            body { background: white !important; color: black !important; }
+            #app-content, aside, header, #login-screen { display: none !important; }
+            #print-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; color: black !important; background: white !important; }
+            .no-print { display: none !important; }
+            .glass { background: transparent !important; border: none !important; backdrop-filter: none !important; color: black !important; }
         }
-        .print-header-img { width: 100%; max-width: 600px; margin: 0 auto 10px auto; display: block; }
-        .print-address { text-align: center; font-size: 11px; line-height: 1.4; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 15px; color: black; }
+        .header-print { background: #0d1b3e; color: white; padding: 15px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
     <div id="print-area">
-        <img src="WhatsApp Image 2026-03-23 at 22.46.19.jpeg" alt="PLAC Drywall" class="print-header-img">
-        <div class="print-address">
-            <strong style="font-size: 14px;">PLAC DRYWALL</strong><br>
-            Rua Neuza Francisca dos Santos, 434 - Jardim Recanto dos Sonhos<br>
-            Sumaré - SP | Tel: (19) 98814-7888
+        <div style="padding: 20px; color: black;">
+             <div style="text-align: center; border-bottom: 2px solid #0d1b3e; padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 style="font-size: 24px; font-weight: 900; margin: 0;">PLAC DRYWALL</h2>
+                <p style="font-size: 10px; margin: 5px 0;">Placa • Gesso • Estrutura Metálica • Materiais Diversos</p>
+                <p style="font-size: 11px;">Rua Neuza Francisca dos Santos, 434 - Jd. Recanto dos Sonhos - Sumaré/SP</p>
+                <p style="font-size: 11px; font-weight: bold;">WhatsApp: (19) 98814-7888 | @plac.drywall</p>
+             </div>
+             <div id="print-content"></div>
         </div>
-        <div id="print-content" style="color: black; padding: 10px;"></div>
     </div>
 
     <div id="login-screen">
         <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
             <div class="mb-8"><img src="logo.png" alt="PLAC Drywall" class="logo-img"></div>
-            <input type="password" id="passInput" placeholder="Senha" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
-            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg">Entrar</button>
+            <input type="password" id="passInput" placeholder="Senha de Acesso" class="w-full p-4 rounded-2xl mb-4 text-center font-bold outline-none border border-white/10">
+            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 transition shadow-lg">Acessar Sistema</button>
         </div>
     </div>
 
     <div id="app-content" class="h-screen flex" style="display: none;">
         <aside class="w-64 glass m-4 mr-2 flex flex-col">
-            <div class="p-6 border-b border-white/10 mb-4 text-center"><img src="logo.png" alt="Logo" class="w-32 mx-auto"></div>
+            <div class="p-6 border-b border-white/10 mb-4 text-center font-black text-xl">PLAC GESTÃO</div>
             <nav class="flex-1 px-4 space-y-2">
-                <button onclick="showTab('dashboard')" id="btn-dashboard" class="w-full flex items-center p-4 rounded-2xl text-sm active-tab"><i class="fas fa-chart-pie mr-3 text-blue-400"></i> Dashboard</button>
-                <button onclick="showTab('pdv')" id="btn-pdv" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-shopping-cart mr-3"></i> Vendas</button>
-                <button onclick="showTab('financeiro')" id="btn-financeiro" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-hand-holding-dollar mr-3 text-green-400"></i> Financeiro</button>
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="w-full flex items-center p-4 rounded-2xl text-sm active-tab"><i class="fas fa-chart-pie mr-3"></i> Dashboard</button>
+                <button onclick="showTab('pdv')" id="btn-pdv" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-shopping-cart mr-3 text-yellow-400"></i> PDV / Vendas</button>
+                <button onclick="showTab('financeiro')" id="btn-financeiro" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-file-invoice-dollar mr-3 text-green-400"></i> Financeiro</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-users mr-3"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="w-full flex items-center p-4 rounded-2xl text-sm"><i class="fas fa-boxes mr-3"></i> Estoque</button>
             </nav>
-            <div class="p-4 border-t border-white/10"><button onclick="location.reload()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition"><i class="fas fa-sign-out-alt mr-3"></i> Sair</button></div>
+            <div class="p-4 border-t border-white/10"><button onclick="location.reload()" class="w-full flex items-center p-4 rounded-2xl text-sm text-red-400 hover:bg-red-500/10 transition"><i class="fas fa-power-off mr-3"></i> Sair</button></div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
             <header class="glass p-5 px-8 flex justify-between items-center mb-4">
                 <h1 id="tab-title" class="text-lg font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
-                <div class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-check-circle mr-2"></i> Sistema Ativo</div>
+                <div class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-circle mr-2 animate-pulse"></i> Servidor Online</div>
             </header>
 
             <div class="overflow-y-auto h-full pr-2 space-y-6">
                 <section id="tab-dashboard" class="tab-content">
-                    <div class="grid grid-cols-3 gap-6 mb-6 text-center">
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Acumuladas</p><h2 class="text-2xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-2xl font-black" id="dash-clientes-count">0</h2></div>
-                        <div class="glass p-8"><p class="text-[10px] uppercase opacity-50 mb-1">Produtos</p><h2 class="text-2xl font-black" id="dash-estoque-count">0</h2></div>
+                    <div class="grid grid-cols-3 gap-6 mb-6">
+                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Total Vendas</p><h2 class="text-2xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-2xl font-black" id="dash-clientes-count">0</h2></div>
+                        <div class="glass p-8 text-center"><p class="text-[10px] uppercase opacity-50 mb-1">Produtos</p><h2 class="text-2xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
-                </section>
-
-                <section id="tab-financeiro" class="tab-content hidden glass p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold uppercase tracking-tighter">Relatório Financeiro</h2>
-                        <div class="flex items-center gap-3">
-                            <button onclick="imprimirFinanceiro()" class="bg-white/10 text-xs px-4 py-2 rounded-xl font-bold uppercase hover:bg-white/20"><i class="fas fa-print mr-2"></i> Imprimir</button>
-                            <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-xl font-black text-xl">Total: <span id="fin-total-geral">R$ 0,00</span></div>
-                        </div>
-                    </div>
-                    <div class="glass p-6 mb-6 h-64"><canvas id="financeiroChart"></canvas></div>
-                    <table class="w-full text-left text-xs">
-                        <thead><tr class="opacity-40 uppercase border-b border-white/10"><th class="pb-4">Data</th><th class="pb-4">Cliente</th><th class="pb-4">Pagamento</th><th class="pb-4 text-right">Valor</th></tr></thead>
-                        <tbody id="corpoFinanceiro"></tbody>
-                    </table>
                 </section>
 
                 <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-8 space-y-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-[10px] opacity-50 mb-2 block uppercase">Cliente</label><select id="pdvCliente" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                            <div>
+                                <label class="text-[10px] opacity-50 mb-2 block uppercase">Cliente</label>
+                                <div class="flex gap-2">
+                                    <select id="pdvCliente" class="flex-1 p-4 rounded-xl outline-none text-xs font-bold"></select>
+                                    <button onclick="showTab('clientes')" class="bg-blue-600 px-4 rounded-xl" title="Novo Cliente">+</button>
+                                </div>
+                            </div>
                             <div><label class="text-[10px] opacity-50 mb-2 block uppercase">Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
                         </div>
                         <div class="flex gap-4 items-end">
                             <div class="w-24"><label class="text-[10px] opacity-50 mb-2 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl">Adicionar Item</button>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl hover:bg-blue-500">Adicionar à Venda</button>
                         </div>
-                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                        <table class="w-full text-xs"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
                     <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
                         <div>
-                            <p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total</p>
-                            <h2 class="text-5xl font-black mb-4">R$ <span id="pdvTotal">0,00</span></h2>
-                            
+                            <p class="text-[10px] uppercase opacity-50 mb-2">Total a Pagar</p>
+                            <h2 class="text-5xl font-black mb-6">R$ <span id="pdvTotal">0,00</span></h2>
                             <label class="text-[10px] opacity-50 mb-2 block uppercase">Forma de Pagamento</label>
                             <select id="pdvPagamento" class="w-full p-4 rounded-xl outline-none text-xs font-bold mb-6">
-                                <option value="Dinheiro">Dinheiro</option>
                                 <option value="Pix">Pix</option>
+                                <option value="Dinheiro">Dinheiro</option>
                                 <option value="Cartão">Cartão</option>
                             </select>
                         </div>
                         <div class="space-y-3">
                             <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg hover:bg-green-400">Finalizar Venda</button>
-                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600 py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-yellow-500"><i class="fas fa-file-invoice mr-2"></i> Gerar Orçamento</button>
-                            <button onclick="imprimirCupomAtual()" class="w-full bg-white/10 py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-white/20"><i class="fas fa-print mr-2"></i> Re-imprimir Última</button>
+                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600 py-4 rounded-2xl font-bold uppercase text-[10px]">Gerar Orçamento</button>
                         </div>
                     </div>
                 </section>
 
-                <section id="tab-estoque" class="tab-content hidden glass p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none"><input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl outline-none"><input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl outline-none">
-                        <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar</button>
+                <section id="tab-financeiro" class="tab-content hidden glass p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold uppercase tracking-tighter">Histórico de Vendas</h2>
+                        <div class="bg-green-500/20 text-green-400 px-6 py-2 rounded-xl font-black text-xl"><span id="fin-total-geral">R$ 0,00</span></div>
                     </div>
+                    <table class="w-full text-left text-xs">
+                        <thead><tr class="opacity-40 uppercase border-b border-white/10"><th class="pb-4">Data</th><th class="pb-4">Cliente</th><th class="pb-4">Pagto</th><th class="pb-4 text-right">Total</th><th class="pb-4 text-right">Ação</th></tr></thead>
+                        <tbody id="corpoFinanceiro"></tbody>
+                    </table>
+                </section>
+
+                <section id="tab-estoque" class="tab-content hidden glass p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <input type="hidden" id="editProdId">
+                        <input type="text" id="estNome" placeholder="Nome do Produto" class="p-4 rounded-xl outline-none">
+                        <input type="number" id="estQtd" placeholder="Quantidade" class="p-4 rounded-xl outline-none">
+                        <input type="number" id="estPreco" placeholder="Preço Unitário" class="p-4 rounded-xl outline-none">
+                        <input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl outline-none">
+                        <input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl outline-none">
+                        <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4 hover:bg-blue-500">Salvar Produto</button>
+                    </div>
+                    <div class="flex justify-between mb-4 px-2"><span class="text-[10px] uppercase opacity-40 italic">Dica: Clique no nome do produto para editar</span></div>
                     <table class="w-full text-left"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
@@ -140,8 +148,8 @@
                         <input type="text" id="cliNome" placeholder="Nome Completo" class="p-4 rounded-xl outline-none">
                         <input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none">
                         <input type="text" id="cliCpf" placeholder="CPF/CNPJ" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliEndereco" placeholder="Endereço Completo" class="p-4 rounded-xl outline-none">
-                        <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="md:col-span-2 bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Salvar Cliente</button>
+                        <input type="text" id="cliEndereco" placeholder="Endereço" class="p-4 rounded-xl outline-none">
+                        <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="md:col-span-2 bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Salvar Cadastro</button>
                     </div>
                     <table class="w-full text-left text-xs"><tbody id="corpoClientes"></tbody></table>
                 </section>
@@ -156,9 +164,9 @@
         const firebaseConfig = { apiKey: "AIzaSyBBeL1Lbq71SfKoZQ4G26aZFPsiS5IFL9I", authDomain: "sistema-plac.firebaseapp.com", projectId: "sistema-plac", storageBucket: "sistema-plac.firebasestorage.app", messagingSenderId: "54513790116", appId: "1:54513790116:web:77d0722e5a8b8b10dfca31" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
-        let produtos = [], clientes = [], vendas = [], carrinho = [], finChart;
+        let produtos = [], clientes = [], vendas = [], carrinho = [];
 
-        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').setAttribute('style', 'display:none !important'); document.getElementById('app-content').setAttribute('style', 'display:flex !important'); carregarDadosIniciais(); window.showTab('dashboard'); } else { alert("Senha incorreta!"); } };
+        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else { alert("Acesso negado!"); } };
 
         async function carregarDadosIniciais() { 
             const pSnap = await getDocs(collection(db, "produtos")); produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
@@ -174,84 +182,136 @@
             if(tabId === 'financeiro') renderFinanceiro(); 
         };
 
-        // IMPRESSÃO VISTA
-        window.imprimirCupomAtual = () => {
-            if(carrinho.length === 0 && vendas.length === 0) return alert("Nada para imprimir!");
-            const ultimaVenda = vendas[0];
-            const html = `<div style="text-align:center; font-weight:bold; margin-bottom:10px;">CUPOM DE VENDA</div>
-            <p><strong>Data:</strong> ${new Date(ultimaVenda.data).toLocaleString('pt-BR')}</p>
-            <p><strong>Cliente:</strong> ${ultimaVenda.cliente}</p>
-            <p><strong>Pagamento:</strong> ${ultimaVenda.pagamento || 'N/A'}</p>
-            <h3 style="text-align:right">TOTAL: R$ ${ultimaVenda.total.toFixed(2)}</h3>`;
-            document.getElementById('print-content').innerHTML = html; window.print();
+        // PDV & IMPRESSÃO
+        window.handleAdicionarAoCarrinho = () => { 
+            const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); 
+            const q = parseInt(document.getElementById('pdvQtd').value); 
+            if(p && p.qtd >= q) { 
+                carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); 
+                renderCarrinho(); 
+            } else { alert("Estoque baixo!"); } 
         };
 
-        // ORÇAMENTO (NÃO SALVA NO BANCO)
-        window.imprimirOrcamento = () => {
-            if(carrinho.length === 0) return alert("Adicione itens para gerar o orçamento!");
-            const html = `<div style="text-align:center; font-weight:bold; font-size:18px; margin-bottom:5px;">ORÇAMENTO</div>
-            <div style="text-align:center; margin-bottom:15px; font-size:10px;">(Válido por 7 dias)</div>
-            <p><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</p>
-            <p><strong>Cliente:</strong> ${document.getElementById('pdvCliente').value}</p>
-            <table style="width:100%; font-size:12px; border-bottom:1px solid black; border-collapse: collapse;">
-                <tr style="border-bottom: 1px solid #000"><td>Item</td><td style="text-align:center">Qtd</td><td style="text-align:right">Sub</td></tr>
-                ${carrinho.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qtdVenda}x</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}
-            </table>
-            <h3 style="text-align:right">TOTAL ESTIMADO: R$ ${document.getElementById('pdvTotal').innerText}</h3>
-            <div style="margin-top:20px; font-size:10px; text-align:center;">Este documento não tem valor fiscal e não reserva estoque.</div>`;
-            document.getElementById('print-content').innerHTML = html; window.print();
+        window.renderCarrinho = () => { 
+            let t = 0; 
+            document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { 
+                t += c.subtotal; 
+                return `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-[10px]">${c.nome}</td><td class="text-center">${c.qtdVenda} UN</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`; 
+            }).join(''); 
+            document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ','); 
         };
 
-        window.imprimirFinanceiro = () => {
-            const html = `<div style="text-align:center; font-weight:bold; margin-bottom:10px;">RELATÓRIO DE VENDAS</div>
-            <table style="width:100%; font-size:11px; border-collapse:collapse;">
-                <thead><tr style="border-bottom:2px solid black; text-align:left;"><th>Data</th><th>Cliente</th><th>Pagamento</th><th style="text-align:right">Total</th></tr></thead>
-                <tbody>${vendas.map(v => `<tr style="border-bottom:1px solid #eee;"><td>${new Date(v.data).toLocaleDateString()}</td><td>${v.cliente}</td><td>${v.pagamento || 'Pix'}</td><td style="text-align:right">R$ ${v.total.toFixed(2)}</td></tr>`).join('')}</tbody>
-            </table>
-            <h3 style="text-align:right; border-top:2px solid black;">TOTAL BRUTO: ${document.getElementById('fin-total-geral').innerText}</h3>`;
-            document.getElementById('print-content').innerHTML = html; window.print();
-        };
-
-        // FINANCEIRO
-        window.renderFinanceiro = () => {
-            let total = 0; const corpo = document.getElementById('corpoFinanceiro');
-            corpo.innerHTML = vendas.map(v => { total += v.total; return `<tr class="border-b border-white/5"><td class="py-4 text-[10px]">${new Date(v.data).toLocaleString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td>${v.pagamento || 'Pix'}</td><td class="text-right font-black text-green-400">R$ ${v.total.toFixed(2)}</td></tr>`; }).join('');
-            document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
-            const ctx = document.getElementById('financeiroChart').getContext('2d'); if(finChart) finChart.destroy();
-            finChart = new Chart(ctx, { type: 'line', data: { labels: vendas.slice(0,7).reverse().map(v => new Date(v.data).toLocaleDateString()), datasets: [{ label: 'Vendas', data: vendas.slice(0,7).reverse().map(v => v.total), borderColor: '#10b981', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false } });
-        };
-
-        // PDV
-        window.handleAdicionarAoCarrinho = () => { const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); const q = parseInt(document.getElementById('pdvQtd').value); if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else { alert("Estoque insuficiente!"); } };
-        window.renderCarrinho = () => { let t = 0; document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-[10px]">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`; }).join(''); document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ','); };
-        
-        window.handleFinalizarVenda = async () => { 
-            if(carrinho.length === 0) return alert("Carrinho vazio!"); 
+        window.handleFinalizarVenda = async () => {
+            if(carrinho.length === 0) return alert("Carrinho vazio!");
             const v = { 
                 cliente: document.getElementById('pdvCliente').value, 
                 total: carrinho.reduce((a,b) => a+b.subtotal,0), 
                 pagamento: document.getElementById('pdvPagamento').value,
+                itens: carrinho,
                 data: new Date().toISOString() 
-            }; 
-            await addDoc(collection(db, "vendas"), v); 
-            for(let i of carrinho) { await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda }); } 
-            carrinho = []; carregarDadosIniciais(); alert("Venda Finalizada!"); 
+            };
+            await addDoc(collection(db, "vendas"), v);
+            for(let i of carrinho) { await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda }); }
+            imprimirCupom(v, "COMPROVANTE DE VENDA");
+            carrinho = []; carregarDadosIniciais();
         };
 
-        // ESTOQUE & CLIENTES (MANTIDO INTACTO)
-        window.handleSalvarProduto = async () => { const id = document.getElementById('editProdId').value; const d = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value) || 0, preco: parseFloat(document.getElementById('estPreco').value) || 0, ncm: document.getElementById('estNcm').value || "", ipi: document.getElementById('estIpi').value || "" }; id ? await updateDoc(doc(db, "produtos", id), d) : await addDoc(collection(db, "produtos"), d); carregarDadosIniciais(); limparForms(); };
-        window.handleSalvarCliente = async () => { const id = document.getElementById('editCliId').value; const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value || "", endereco: document.getElementById('cliEndereco').value || "" }; id ? await updateDoc(doc(db, "clientes", id), d) : await addDoc(collection(db, "clientes"), d); carregarDadosIniciais(); limparForms(); };
-        window.handleDeletar = async (col, id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
+        window.imprimirOrcamento = () => {
+            if(carrinho.length === 0) return alert("Adicione itens!");
+            const orc = {
+                cliente: document.getElementById('pdvCliente').value,
+                total: carrinho.reduce((a,b) => a+b.subtotal,0),
+                itens: carrinho,
+                data: new Date().toISOString()
+            };
+            imprimirCupom(orc, "ORÇAMENTO (VÁLIDO 7 DIAS)");
+        };
+
+        function imprimirCupom(venda, titulo) {
+            const html = `<div style="text-align:center; font-weight:bold; font-size:16px; margin-bottom:15px; border-bottom:1px solid #ddd; padding-bottom:5px;">${titulo}</div>
+            <p style="margin:2px 0"><strong>Data:</strong> ${new Date(venda.data).toLocaleString('pt-BR')}</p>
+            <p style="margin:2px 0"><strong>Cliente:</strong> ${venda.cliente}</p>
+            <p style="margin:2px 0"><strong>Pagamento:</strong> ${venda.pagamento || 'N/A'}</p>
+            <table style="width:100%; border-top:1px dashed #000; margin-top:10px; font-size:12px;">
+                <tr style="text-align:left; font-weight:bold;"><td>Item</td><td style="text-align:center">Qtd</td><td style="text-align:right">Sub</td></tr>
+                ${venda.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qtdVenda}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}
+            </table>
+            <h2 style="text-align:right; border-top:1px solid #000; margin-top:10px; padding-top:5px;">TOTAL: R$ ${venda.total.toFixed(2)}</h2>`;
+            document.getElementById('print-content').innerHTML = html;
+            window.print();
+        }
+
+        // FINANCEIRO COM EXCLUSÃO (ESTORNO)
+        window.renderFinanceiro = () => {
+            let total = 0; const corpo = document.getElementById('corpoFinanceiro');
+            corpo.innerHTML = vendas.map(v => { 
+                total += v.total; 
+                return `<tr class="border-b border-white/5"><td class="py-4 text-[10px]">${new Date(v.data).toLocaleDateString()}</td><td class="font-bold uppercase">${v.cliente}</td><td>${v.pagamento || 'Pix'}</td><td class="text-right font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 hover:text-red-300"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
+            }).join('');
+            document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
+        };
+
+        window.estornarVenda = async (id) => {
+            if(!confirm("Deseja cancelar esta venda e devolver os itens ao estoque?")) return;
+            const v = vendas.find(x => x.id === id);
+            for(let i of v.itens) {
+                const prodAtual = produtos.find(p => p.id === i.id);
+                if(prodAtual) await updateDoc(doc(db, "produtos", i.id), { qtd: prodAtual.qtd + i.qtdVenda });
+            }
+            await deleteDoc(doc(db, "vendas", id));
+            carregarDadosIniciais();
+        };
+
+        // ESTOQUE COM EDIÇÃO
+        window.prepararEdicaoProd = (id) => {
+            const p = produtos.find(x => x.id === id);
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('estNome').value = p.nome;
+            document.getElementById('estQtd').value = p.qtd;
+            document.getElementById('estPreco').value = p.preco;
+            document.getElementById('estNcm').value = p.ncm || "";
+            document.getElementById('estIpi').value = p.ipi || "";
+            document.getElementById('btnSalvarProd').innerText = "Atualizar Produto";
+        };
+
+        window.handleSalvarProduto = async () => {
+            const id = document.getElementById('editProdId').value;
+            const d = { 
+                nome: document.getElementById('estNome').value, 
+                qtd: parseInt(document.getElementById('estQtd').value) || 0, 
+                preco: parseFloat(document.getElementById('estPreco').value) || 0,
+                ncm: document.getElementById('estNcm').value || "",
+                ipi: document.getElementById('estIpi').value || ""
+            };
+            id ? await updateDoc(doc(db, "produtos", id), d) : await addDoc(collection(db, "produtos"), d);
+            limparForms(); carregarDadosIniciais();
+        };
+
+        // CLIENTES & RENDERS
+        window.handleSalvarCliente = async () => {
+            const id = document.getElementById('editCliId').value;
+            const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value || "", endereco: document.getElementById('cliEndereco').value || "" };
+            id ? await updateDoc(doc(db, "clientes", id), d) : await addDoc(collection(db, "clientes"), d);
+            limparForms(); carregarDadosIniciais();
+        };
+
+        window.handleDeletar = async (col, id) => { if(confirm("Excluir definitivamente?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="p-4"><span class="font-bold text-xs uppercase">${p.nome}</span><br><span class="text-[9px] text-blue-400">NCM: ${p.ncm} | IPI: ${p.ipi}%</span></td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="p-4 uppercase text-xs font-bold">${c.nome}</td><td class="p-4 opacity-70">${c.cpf || '--'}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')"><span class="font-bold text-xs uppercase text-blue-300">${p.nome}</span><br><span class="text-[9px] opacity-40">NCM: ${p.ncm}</span></td><td class="p-4">${p.qtd} UN</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="p-4 uppercase text-xs font-bold">${c.nome}</td><td class="p-4 opacity-70">${c.cpf || '--'}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400 opacity-20"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.qtd})</option>`).join('');
-            const totalV = vendas.reduce((a,b) => a+b.total,0); document.getElementById('dash-vendas-total').innerText = "R$ " + totalV.toFixed(2).replace('.', ',');
-            document.getElementById('dash-estoque-count').innerText = produtos.length; document.getElementById('dash-clientes-count').innerText = clientes.length;
+            document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b) => a+b.total,0).toFixed(2).replace('.', ',');
+            document.getElementById('dash-estoque-count').innerText = produtos.length;
+            document.getElementById('dash-clientes-count').innerText = clientes.length;
         }
-        function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('btnSalvarProd').innerText = "Salvar"; }
+
+        function limparForms() { 
+            document.querySelectorAll('input').forEach(i => i.value = ''); 
+            document.getElementById('editProdId').value = ""; 
+            document.getElementById('btnSalvarProd').innerText = "Salvar Produto";
+        }
     </script>
 </body>
 </html>
