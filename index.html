@@ -18,7 +18,6 @@
         #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
         .logo-img { max-width: 180px; margin: 0 auto; filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3)); }
 
-        /* AREA DE IMPRESSÃO - CORREÇÃO FUNDO BRANCO */
         #print-area { display: none; background: white !important; color: black !important; }
         @media print {
             body * { visibility: hidden; }
@@ -80,7 +79,7 @@
                         <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-xl font-black text-xl">Total: <span id="fin-total-geral">R$ 0,00</span></div>
                     </div>
                     <table class="w-full text-left text-xs">
-                        <thead><tr class="opacity-40 uppercase border-b border-white/10"><th class="pb-4">Data</th><th class="pb-4">Cliente</th><th class="pb-4">Pagamento</th><th class="pb-4 text-right">Valor</th><th class="pb-4 text-right">Ação</th></tr></thead>
+                        <thead><tr class="opacity-40 uppercase border-b border-white/10"><th class="pb-4">Data</th><th class="pb-4">Cliente</th><th class="pb-4 text-right">Valor</th><th class="pb-4 text-right">Ação</th></tr></thead>
                         <tbody id="corpoFinanceiro"></tbody>
                     </table>
                 </section>
@@ -88,13 +87,7 @@
                 <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-8 space-y-6">
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] opacity-50 mb-2 block uppercase">Cliente</label>
-                                <div class="flex gap-2">
-                                    <select id="pdvCliente" class="flex-1 p-4 rounded-xl outline-none text-xs font-bold"></select>
-                                    <button onclick="showTab('clientes')" class="bg-blue-600 px-4 rounded-xl font-bold">+</button>
-                                </div>
-                            </div>
+                            <div><label class="text-[10px] opacity-50 mb-2 block uppercase">Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1 p-4 rounded-xl outline-none text-xs font-bold"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-4 rounded-xl">+</button></div></div>
                             <div><label class="text-[10px] opacity-50 mb-2 block uppercase">Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
                         </div>
                         <div class="flex gap-4 items-end">
@@ -117,39 +110,27 @@
                         <div class="space-y-3">
                             <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-lg">Finalizar</button>
                             <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600 py-4 rounded-2xl font-bold uppercase text-[10px]">Orçamento</button>
+                            <button onclick="imprimirUltimaVenda()" class="w-full bg-white/10 py-4 rounded-2xl font-bold uppercase text-[10px]"><i class="fas fa-print mr-2"></i> Re-imprimir</button>
                         </div>
                     </div>
                 </section>
 
                 <section id="tab-estoque" class="tab-content hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <input type="hidden" id="editProdId">
-                        <input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl outline-none">
-                        <input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl outline-none">
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto" class="p-4 rounded-xl"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl">
+                        <input type="number" id="estPreco" placeholder="Preço" class="p-4 rounded-xl"><input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl"><input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl">
                         <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4">Salvar</button>
                     </div>
-                    <table class="w-full text-left">
-                        <thead><tr class="opacity-40 uppercase text-[10px] border-b border-white/10"><th class="pb-4">Produto (Clique p/ editar)</th><th class="pb-4">Qtd</th><th class="pb-4">Preço</th><th class="pb-4 text-right">Ação</th></tr></thead>
-                        <tbody id="corpoEstoque"></tbody>
-                    </table>
+                    <table class="w-full text-left text-xs"><tbody id="corpoEstoque"></tbody></table>
                 </section>
 
                 <section id="tab-clientes" class="tab-content hidden glass p-8">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <input type="hidden" id="editCliId">
-                        <input type="text" id="cliNome" placeholder="Nome Completo" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliCpf" placeholder="CPF/CNPJ" class="p-4 rounded-xl outline-none">
-                        <input type="text" id="cliEndereco" placeholder="Endereço" class="p-4 rounded-xl outline-none">
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome" class="p-4 rounded-xl"><input type="text" id="cliWhats" placeholder="WhatsApp" class="p-4 rounded-xl">
+                        <input type="text" id="cliCpf" placeholder="CPF/CNPJ" class="p-4 rounded-xl"><input type="text" id="cliEndereco" placeholder="Endereço" class="p-4 rounded-xl">
                         <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="md:col-span-2 bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Salvar Cliente</button>
                     </div>
-                    <table class="w-full text-left text-xs">
-                        <thead><tr class="opacity-40 uppercase border-b border-white/10"><th class="pb-4">Cliente</th><th class="pb-4">WhatsApp</th><th class="pb-4 text-right">Ação</th></tr></thead>
-                        <tbody id="corpoClientes"></tbody>
-                    </table>
+                    <table class="w-full text-left text-xs"><tbody id="corpoClientes"></tbody></table>
                 </section>
             </div>
         </main>
@@ -180,83 +161,57 @@
             if(tabId === 'financeiro') renderFinanceiro(); 
         };
 
-        // IMPRESSÃO (CORREÇÃO LISTAGEM COMPLETA)
-        function gerarHtmlCupom(dados, titulo) {
-            return `
-                <div style="text-align:center; font-weight:bold; font-size:16px; margin-bottom:15px; border-bottom:1px solid #000; padding-bottom:5px;">${titulo}</div>
-                <p><strong>Data:</strong> ${new Date(dados.data).toLocaleString('pt-BR')}</p>
-                <p><strong>Cliente:</strong> ${dados.cliente}</p>
-                <p><strong>Forma:</strong> ${dados.pagamento || '---'}</p>
-                <table style="width:100%; border-top:1px dashed #000; margin-top:10px; font-size:12px; border-collapse:collapse;">
-                    <thead><tr style="text-align:left;"><th>Item</th><th>Qtd</th><th style="text-align:right">Sub</th></tr></thead>
-                    <tbody>${dados.itens.map(i => `<tr style="border-bottom:0.5px solid #eee"><td>${i.nome}</td><td>${i.qtdVenda}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
-                </table>
-                <h2 style="text-align:right; border-top:1px solid #000; margin-top:10px;">TOTAL: R$ ${dados.total.toFixed(2)}</h2>
-            `;
+        function imprimirCupom(v, t) {
+            document.getElementById('print-content').innerHTML = `<div style="text-align:center;font-weight:bold;margin-bottom:10px;">${t}</div><p>Data: ${new Date(v.data).toLocaleString()}</p><p>Cliente: ${v.cliente}</p><p>Pgto: ${v.pagamento||'--'}</p><table style="width:100%;font-size:11px;margin-top:10px;border-top:1px dashed #000;">${v.itens.map(i => `<tr><td>${i.nome}</td><td>${i.qtdVenda}x</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</table><h2 style="text-align:right;border-top:1px solid #000;margin-top:5px;">TOTAL: R$ ${v.total.toFixed(2)}</h2>`;
+            window.print();
         }
 
-        window.imprimirOrcamento = () => {
-            if(carrinho.length === 0) return;
-            const docOrc = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b) => a+b.subtotal,0), itens: carrinho, data: new Date().toISOString() };
-            document.getElementById('print-content').innerHTML = gerarHtmlCupom(docOrc, "ORÇAMENTO");
-            window.print();
-        };
+        window.imprimirUltimaVenda = () => { if(vendas.length > 0) imprimirCupom(vendas[0], "RE-IMPRESSÃO DE VENDA"); };
+        window.imprimirOrcamento = () => { if(carrinho.length > 0) imprimirCupom({ cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0), itens: carrinho, data: new Date().toISOString() }, "ORÇAMENTO"); };
 
-        // PDV & VENDAS
-        window.handleAdicionarAoCarrinho = () => { const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); const q = parseInt(document.getElementById('pdvQtd').value); if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else { alert("Sem estoque!"); } };
-        window.renderCarrinho = () => { let t = 0; document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-[10px]">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right font-black">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`; }).join(''); document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ','); };
+        window.handleAdicionarAoCarrinho = () => { const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); const q = parseInt(document.getElementById('pdvQtd').value); if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else alert("Estoque baixo!"); };
+        window.renderCarrinho = () => { let t = 0; document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-4 font-bold text-[10px] uppercase">${c.nome}</td><td class="text-center">${c.qtdVenda}x</td><td class="text-right">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-times text-red-400 cursor-pointer"></i></td></tr>`; }).join(''); document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ','); };
         
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
-            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b) => a+b.subtotal,0), pagamento: document.getElementById('pdvPagamento').value, itens: carrinho, data: new Date().toISOString() };
+            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0), pagamento: document.getElementById('pdvPagamento').value, itens: carrinho, data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), v);
-            for(let i of carrinho) { await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda }); }
-            document.getElementById('print-content').innerHTML = gerarHtmlCupom(v, "COMPROVANTE DE VENDA");
-            window.print();
+            for(let i of carrinho) await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda });
+            imprimirCupom(v, "COMPROVANTE DE VENDA");
             carrinho = []; carregarDadosIniciais();
         };
 
-        // FINANCEIRO COM ESTORNO
-        window.renderFinanceiro = () => {
-            let total = 0; const corpo = document.getElementById('corpoFinanceiro');
-            corpo.innerHTML = vendas.map(v => { total += v.total; return `<tr class="border-b border-white/5"><td class="py-4 text-[10px]">${new Date(v.data).toLocaleDateString()}</td><td class="font-bold uppercase">${v.cliente}</td><td>${v.pagamento || 'Pix'}</td><td class="text-right font-black text-green-400">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-400 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; }).join('');
-            document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
-        };
-
         window.estornarVenda = async (id) => {
-            if(!confirm("Cancelar venda e estornar estoque?")) return;
+            if(!confirm("Cancelar venda e devolver estoque?")) return;
             const v = vendas.find(x => x.id === id);
-            for(let i of v.itens) {
-                const p = produtos.find(prod => prod.id === i.id);
-                if(p) await updateDoc(doc(db, "produtos", i.id), { qtd: p.qtd + i.qtdVenda });
-            }
-            await deleteDoc(doc(db, "vendas", id));
-            carregarDadosIniciais();
+            for(let i of v.itens) { const p = produtos.find(prod => prod.id === i.id); if(p) await updateDoc(doc(db, "produtos", i.id), { qtd: p.qtd + i.qtdVenda }); }
+            await deleteDoc(doc(db, "vendas", id)); carregarDadosIniciais();
         };
 
-        // ESTOQUE COM EDIÇÃO
         window.prepararEdicaoProd = (id) => {
             const p = produtos.find(x => x.id === id);
-            document.getElementById('editProdId').value = p.id;
-            document.getElementById('estNome').value = p.nome;
-            document.getElementById('estQtd').value = p.qtd;
-            document.getElementById('estPreco').value = p.preco;
-            document.getElementById('estNcm').value = p.ncm || "";
-            document.getElementById('estIpi').value = p.ipi || "";
+            document.getElementById('editProdId').value = p.id; document.getElementById('estNome').value = p.nome; document.getElementById('estQtd').value = p.qtd;
+            document.getElementById('estPreco').value = p.preco; document.getElementById('estNcm').value = p.ncm || ""; document.getElementById('estIpi').value = p.ipi || "";
             document.getElementById('btnSalvarProd').innerText = "Atualizar";
+        };
+
+        window.prepararEdicaoCli = (id) => {
+            const c = clientes.find(x => x.id === id);
+            document.getElementById('editCliId').value = c.id; document.getElementById('cliNome').value = c.nome; document.getElementById('cliWhats').value = c.whats;
+            document.getElementById('cliCpf').value = c.cpf || ""; document.getElementById('cliEndereco').value = c.endereco || "";
+            document.getElementById('btnSalvarCli').innerText = "Atualizar Cliente";
         };
 
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
-            const d = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value) || 0, preco: parseFloat(document.getElementById('estPreco').value) || 0, ncm: document.getElementById('estNcm').value || "", ipi: document.getElementById('estIpi').value || "" };
+            const d = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value)||0, preco: parseFloat(document.getElementById('estPreco').value)||0, ncm: document.getElementById('estNcm').value, ipi: document.getElementById('estIpi').value };
             id ? await updateDoc(doc(db, "produtos", id), d) : await addDoc(collection(db, "produtos"), d);
             limparForms(); carregarDadosIniciais();
         };
 
-        // CLIENTES
         window.handleSalvarCliente = async () => {
             const id = document.getElementById('editCliId').value;
-            const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value || "", endereco: document.getElementById('cliEndereco').value || "" };
+            const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value, endereco: document.getElementById('cliEndereco').value };
             id ? await updateDoc(doc(db, "clientes", id), d) : await addDoc(collection(db, "clientes"), d);
             limparForms(); carregarDadosIniciais();
         };
@@ -264,15 +219,16 @@
         window.handleDeletar = async (col, id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="p-4 cursor-pointer" onclick="prepararEdicaoProd('${p.id}')"><span class="font-bold text-xs uppercase text-blue-300">${p.nome}</span><br><span class="text-[9px] opacity-40">NCM: ${p.ncm}</span></td><td class="p-4">${p.qtd}</td><td class="p-4 font-black">R$ ${p.preco.toFixed(2)}</td><td class="p-4 text-right"><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-400 opacity-20"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="p-4 uppercase text-xs font-bold">${c.nome}</td><td class="p-4">${c.whats}</td><td class="p-4 text-right"><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-400 opacity-20"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold text-blue-300">${p.nome}</td><td>${p.qtd}</td><td>R$ ${p.preco.toFixed(2)}</td><td class="text-right flex gap-3 justify-end"><button onclick="prepararEdicaoProd('${p.id}')"><i class="fas fa-edit text-blue-400"></i></button><button onclick="handleDeletar('produtos', '${p.id}')"><i class="fas fa-trash text-red-500 opacity-30"></i></button></td></tr>`).join('');
+            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-4 uppercase font-bold">${c.nome}</td><td>${c.whats}</td><td class="text-right flex gap-3 justify-end"><button onclick="prepararEdicaoCli('${c.id}')"><i class="fas fa-edit text-blue-400"></i></button><button onclick="handleDeletar('clientes', '${c.id}')"><i class="fas fa-trash text-red-500 opacity-30"></i></button></td></tr>`).join('');
+            document.getElementById('corpoFinanceiro').innerHTML = vendas.map(v => `<tr class="border-b border-white/5"><td class="py-4">${new Date(v.data).toLocaleDateString()}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')"><i class="fas fa-trash-alt text-red-500"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} (${p.qtd})</option>`).join('');
-            document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b) => a+b.total,0).toFixed(2).replace('.', ',');
+            document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
             document.getElementById('dash-estoque-count').innerText = produtos.length; document.getElementById('dash-clientes-count').innerText = clientes.length;
         }
 
-        function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('editProdId').value = ""; document.getElementById('btnSalvarProd').innerText = "Salvar"; }
+        function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('editProdId').value = ""; document.getElementById('editCliId').value = ""; document.getElementById('btnSalvarProd').innerText = "Salvar"; document.getElementById('btnSalvarCli').innerText = "Salvar Cliente"; }
     </script>
 </body>
 </html>
