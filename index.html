@@ -7,24 +7,22 @@
     <link rel="icon" type="image/png" href="logo.png" />
     <link rel="apple-touch-icon" href="logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --plac-blue: #0d1b3e; --plac-accent: #3b82f6; }
-        body { background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%); background-attachment: fixed; min-height: 100vh; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; }
+        body { background: linear-gradient(135deg, #0d1b3e 0%, #1e293b 100%); background-attachment: fixed; min-height: 100vh; color: white; font-family: sans-serif; font-size: 13px; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
         
-        /* DESIGN DAS ABAS MELHORADO */
-        .nav-btn { width: 100%; display: flex; align-items: center; padding: 14px 20px; border-radius: 16px; font-size: 14px; font-weight: 600; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 8px; border: 1px solid transparent; }
-        .nav-btn i { width: 20px; margin-right: 12px; transition: transform 0.3s; }
-        .nav-btn:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.1); transform: translateX(5px); }
-        .nav-btn:hover i { transform: scale(1.2); color: var(--plac-accent); }
-        .active-tab { background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%) !important; border-left: 4px solid var(--plac-accent) !important; color: white !important; }
-
-        input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; transition: border 0.3s; }
-        input:focus { border-color: var(--plac-accent) !important; outline: none; }
+        /* AJUSTE DE TAMANHO DAS ABAS */
+        .nav-btn { width: 100%; display: flex; align-items: center; padding: 10px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; transition: all 0.3s; margin-bottom: 4px; }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(5px); }
+        .active-tab { background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%) !important; border-left: 4px solid var(--plac-accent) !important; }
+        
+        input, select { background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; height: 42px; padding: 0 12px !important; border-radius: 10px !important; font-size: 12px !important; }
         
         #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d1b3e; }
+        
+        /* ÁREA DE IMPRESSÃO (LIMPA) */
         #print-area { display: none; background: white !important; color: black !important; }
         @media print {
             body * { visibility: hidden; }
@@ -45,100 +43,97 @@
     </div>
 
     <div id="login-screen">
-        <div class="glass p-10 w-96 text-center shadow-2xl bg-white/5">
-            <div class="mb-8"><img src="logo.png" alt="PLAC Drywall" class="w-40 mx-auto"></div>
-            <input type="password" id="passInput" placeholder="Senha de Acesso" class="w-full p-4 rounded-2xl mb-4 text-center font-bold">
-            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase text-xs hover:bg-blue-500 shadow-lg">Entrar no Sistema</button>
+        <div class="glass p-8 w-80 text-center shadow-2xl bg-white/5">
+            <div class="mb-6"><img src="logo.png" alt="PLAC Drywall" class="w-32 mx-auto"></div>
+            <input type="password" id="passInput" placeholder="Senha" class="w-full mb-4 text-center font-bold">
+            <button onclick="tentarLogin()" class="w-full bg-blue-600 py-3 rounded-xl font-black uppercase text-[10px] hover:bg-blue-500 shadow-lg">Entrar</button>
         </div>
     </div>
 
     <div id="app-content" class="h-screen flex" style="display: none;">
-        <aside class="w-72 glass m-4 mr-2 flex flex-col p-4">
-            <div class="p-6 mb-6 text-center"><img src="logo.png" alt="Logo" class="w-40 mx-auto opacity-90"></div>
+        <aside class="w-64 glass m-3 mr-1 flex flex-col p-3">
+            <div class="p-4 mb-4 text-center"><img src="logo.png" alt="Logo" class="w-32 mx-auto"></div>
             <nav class="flex-1 space-y-1">
-                <button onclick="showTab('dashboard')" id="btn-dashboard" class="nav-btn active-tab"><i class="fas fa-home"></i> Início</button>
-                <button onclick="showTab('pdv')" id="btn-pdv" class="nav-btn"><i class="fas fa-shopping-bag text-yellow-400"></i> PDV / Vendas</button>
-                <button onclick="showTab('financeiro')" id="btn-financeiro" class="nav-btn"><i class="fas fa-wallet text-green-400"></i> Financeiro</button>
-                <button onclick="showTab('clientes')" id="btn-clientes" class="nav-btn"><i class="fas fa-user-friends text-purple-400"></i> Clientes</button>
-                <button onclick="showTab('estoque')" id="btn-estoque" class="nav-btn"><i class="fas fa-box-open text-orange-400"></i> Estoque</button>
+                <button onclick="showTab('dashboard')" id="btn-dashboard" class="nav-btn active-tab"><i class="fas fa-home mr-3 text-blue-400"></i> Início</button>
+                <button onclick="showTab('pdv')" id="btn-pdv" class="nav-btn"><i class="fas fa-shopping-bag mr-3 text-yellow-400"></i> PDV / Vendas</button>
+                <button onclick="showTab('financeiro')" id="btn-financeiro" class="nav-btn"><i class="fas fa-wallet mr-3 text-green-400"></i> Financeiro</button>
+                <button onclick="showTab('clientes')" id="btn-clientes" class="nav-btn"><i class="fas fa-user-friends mr-3 text-purple-400"></i> Clientes</button>
+                <button onclick="showTab('estoque')" id="btn-estoque" class="nav-btn"><i class="fas fa-box-open mr-3 text-orange-400"></i> Estoque</button>
             </nav>
-            <div class="pt-4 border-t border-white/10"><button onclick="location.reload()" class="nav-btn text-red-400 hover:bg-red-500/10"><i class="fas fa-power-off"></i> Sair</button></div>
+            <div class="pt-3 border-t border-white/10"><button onclick="location.reload()" class="nav-btn text-red-400 hover:bg-red-500/10"><i class="fas fa-power-off mr-3"></i> Sair</button></div>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-hidden m-4 ml-2">
-            <header class="glass p-5 px-8 flex justify-between items-center mb-4">
-                <h1 id="tab-title" class="text-sm font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
-                <div class="px-4 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-bold text-green-400 uppercase"><i class="fas fa-bolt mr-2"></i> Cloud Sync Ativo</div>
+        <main class="flex-1 flex flex-col overflow-hidden m-3 ml-1">
+            <header class="glass p-4 px-6 flex justify-between items-center mb-3">
+                <h1 id="tab-title" class="text-xs font-black uppercase tracking-widest text-blue-400">Dashboard</h1>
+                <div class="text-[9px] font-bold text-green-400 uppercase tracking-widest"><i class="fas fa-check-circle mr-1"></i> Cloud Online</div>
             </header>
 
-            <div class="overflow-y-auto h-full pr-2 space-y-6">
+            <div class="overflow-y-auto h-full pr-2 space-y-4">
                 <section id="tab-dashboard" class="tab-content">
-                    <div class="grid grid-cols-3 gap-6 mb-6">
-                        <div class="glass p-8 text-center border-b-4 border-blue-500"><p class="text-[10px] uppercase opacity-50 mb-1">Vendas Totais</p><h2 class="text-3xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
-                        <div class="glass p-8 text-center border-b-4 border-purple-500"><p class="text-[10px] uppercase opacity-50 mb-1">Base de Clientes</p><h2 class="text-3xl font-black" id="dash-clientes-count">0</h2></div>
-                        <div class="glass p-8 text-center border-b-4 border-orange-500"><p class="text-[10px] uppercase opacity-50 mb-1">Itens em Estoque</p><h2 class="text-3xl font-black" id="dash-estoque-count">0</h2></div>
+                    <div class="grid grid-cols-3 gap-4 mb-4">
+                        <div class="glass p-6 text-center border-b-4 border-blue-500"><p class="text-[9px] uppercase opacity-50 mb-1">Faturamento</p><h2 class="text-xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-6 text-center border-b-4 border-purple-500"><p class="text-[9px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-xl font-black" id="dash-clientes-count">0</h2></div>
+                        <div class="glass p-6 text-center border-b-4 border-orange-500"><p class="text-[9px] uppercase opacity-50 mb-1">Estoque</p><h2 class="text-xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
                 </section>
 
-                <section id="tab-financeiro" class="tab-content hidden glass p-8">
-                    <div class="flex justify-between items-end mb-8">
-                        <div><h2 class="text-2xl font-black uppercase tracking-tight">Fluxo de Caixa</h2><p class="text-[10px] opacity-40 uppercase">Histórico Geral de Transações</p></div>
-                        <div class="text-right">
-                            <p class="text-[10px] opacity-50 uppercase mb-1">Saldo Total Acumulado</p>
-                            <div class="bg-green-500/20 text-green-400 px-6 py-3 rounded-2xl font-black text-3xl border border-green-500/30" id="fin-total-geral">R$ 0,00</div>
-                        </div>
+                <section id="tab-financeiro" class="tab-content hidden glass p-6">
+                    <div class="flex justify-between items-end mb-6">
+                        <h2 class="text-lg font-black uppercase">Fluxo de Caixa</h2>
+                        <div class="bg-green-500/20 text-green-400 px-4 py-2 rounded-xl font-black text-xl border border-green-500/30" id="fin-total-geral">R$ 0,00</div>
                     </div>
-                    <table class="w-full text-left text-sm">
-                        <thead><tr class="opacity-40 uppercase text-[10px] border-b border-white/10"><th class="pb-4">Data/Hora</th><th class="pb-4">Cliente</th><th class="pb-4">Forma de Pgto</th><th class="pb-4 text-right">Valor Líquido</th><th class="pb-4 text-right">Ações</th></tr></thead>
-                        <tbody id="corpoFinanceiro" class="divide-y divide-white/5"></tbody>
+                    <table class="w-full text-left text-xs">
+                        <thead><tr class="opacity-40 uppercase text-[9px] border-b border-white/10"><th class="pb-3">Data</th><th class="pb-3">Cliente</th><th class="pb-3 text-right">Valor</th><th class="pb-3 text-right">Ações</th></tr></thead>
+                        <tbody id="corpoFinanceiro"></tbody>
                     </table>
                 </section>
 
-                <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass p-8 space-y-6">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-[10px] opacity-50 mb-2 block uppercase font-bold">Selecionar Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1 p-4 rounded-xl outline-none text-xs font-bold"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-4 rounded-xl"><i class="fas fa-plus"></i></button></div></div>
-                            <div><label class="text-[10px] opacity-50 mb-2 block uppercase font-bold">Produto</label><select id="pdvSelect" class="w-full p-4 rounded-xl outline-none text-xs font-bold"></select></div>
+                <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="lg:col-span-2 glass p-6 space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-3 rounded-lg">+</button></div></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Produto</label><select id="pdvSelect" class="w-full"></select></div>
                         </div>
-                        <div class="flex gap-4 items-end">
-                            <div class="w-24"><label class="text-[10px] opacity-50 mb-2 block uppercase font-bold">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full p-4 rounded-xl text-center font-bold"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-4 font-black uppercase text-xs rounded-xl hover:scale-[1.02] transition shadow-lg shadow-blue-500/20">Inserir no Carrinho</button>
+                        <div class="flex gap-3 items-end">
+                            <div class="w-20"><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Adicionar</button>
                         </div>
-                        <table class="w-full text-xs mt-4"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Produto</th><th class="pb-2 text-center">Unidades</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                        <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Unit.</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
-                    <div class="glass p-8 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
+                    <div class="glass p-6 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
                         <div>
-                            <p class="text-[10px] uppercase font-bold opacity-50 mb-2">Total da Venda</p>
-                            <h2 class="text-6xl font-black mb-6 tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
-                            <label class="text-[10px] opacity-50 mb-2 block uppercase font-bold">Método de Recebimento</label>
-                            <select id="pdvPagamento" class="w-full p-4 rounded-xl outline-none text-xs font-bold mb-6">
-                                <option value="Pix">Pix (Transferência)</option><option value="Dinheiro">Dinheiro Espécie</option><option value="Cartão">Cartão Débito/Crédito</option>
-                            </select>
+                            <p class="text-[9px] uppercase font-bold opacity-50 mb-1">Total</p>
+                            <h2 class="text-4xl font-black mb-4 tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-yellow-500">Frete (R$)</label>
+                            <input type="number" id="pdvFrete" value="0" oninput="renderCarrinho()" class="w-full mb-3">
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold">Pagamento</label>
+                            <select id="pdvPagamento" class="w-full mb-4"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
                         </div>
-                        <div class="space-y-3">
-                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-6 rounded-3xl font-black text-xl uppercase shadow-xl hover:bg-green-400 transition-all active:scale-95">Concluir Venda</button>
-                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-4 rounded-2xl font-bold uppercase text-[10px] border border-yellow-600/30">Gerar Orçamento</button>
-                            <button onclick="imprimirUltimaVenda()" class="w-full bg-white/5 py-3 rounded-2xl font-bold uppercase text-[9px] hover:bg-white/10"><i class="fas fa-print mr-2"></i> Segunda Via</button>
+                        <div class="space-y-2">
+                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-4 rounded-2xl font-black text-lg uppercase shadow-lg">Finalizar</button>
+                            <button id="btnWhatsapp" onclick="enviarWhatsApp()" style="display:none;" class="w-full bg-green-600 py-3 rounded-xl font-bold uppercase text-[9px]"><i class="fab fa-whatsapp mr-1"></i> WhatsApp</button>
+                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Orçamento</button>
                         </div>
                     </div>
                 </section>
 
-                <section id="tab-estoque" class="tab-content hidden glass p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Item" class="p-4 rounded-xl"><input type="number" id="estQtd" placeholder="Qtd" class="p-4 rounded-xl">
-                        <input type="number" id="estPreco" placeholder="Preço Venda" class="p-4 rounded-xl"><input type="text" id="estNcm" placeholder="NCM" class="p-4 rounded-xl"><input type="number" id="estIpi" placeholder="IPI %" class="p-4 rounded-xl">
-                        <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-xl uppercase text-xs p-4 shadow-lg shadow-blue-500/20">Salvar Alterações</button>
+                <section id="tab-estoque" class="tab-content hidden glass p-6">
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Produto"><input type="number" id="estQtd" placeholder="Qtd">
+                        <input type="number" id="estPreco" placeholder="Preço"><input type="text" id="estNcm" placeholder="NCM"><input type="number" id="estIpi" placeholder="IPI %">
+                        <button onclick="handleSalvarProduto()" id="btnSalvarProd" class="bg-blue-600 font-bold rounded-lg uppercase text-[10px] p-2">Salvar</button>
                     </div>
-                    <table class="w-full text-left text-sm"><tbody id="corpoEstoque" class="divide-y divide-white/5"></tbody></table>
+                    <table class="w-full text-left text-xs"><tbody id="corpoEstoque" class="divide-y divide-white/5"></tbody></table>
                 </section>
 
-                <section id="tab-clientes" class="tab-content hidden glass p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome Completo / Razão Social" class="p-4 rounded-xl"><input type="text" id="cliWhats" placeholder="WhatsApp / Telefone" class="p-4 rounded-xl">
-                        <input type="text" id="cliCpf" placeholder="CPF ou CNPJ" class="p-4 rounded-xl"><input type="text" id="cliEndereco" placeholder="Endereço Completo" class="p-4 rounded-xl">
-                        <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="md:col-span-2 bg-green-600 font-bold rounded-xl uppercase text-xs p-4">Registrar / Atualizar Cliente</button>
+                <section id="tab-clientes" class="tab-content hidden glass p-6">
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                        <input type="hidden" id="editCliId"><input type="text" id="cliNome" placeholder="Nome"><input type="text" id="cliWhats" placeholder="WhatsApp">
+                        <input type="text" id="cliCpf" placeholder="CPF/CNPJ"><input type="text" id="cliEndereco" placeholder="Endereço">
+                        <button onclick="handleSalvarCliente()" id="btnSalvarCli" class="col-span-2 bg-green-600 font-bold rounded-lg uppercase text-[10px] p-2">Salvar Cliente</button>
                     </div>
-                    <table class="w-full text-left text-sm"><tbody id="corpoClientes" class="divide-y divide-white/5"></tbody></table>
+                    <table class="w-full text-left text-xs"><tbody id="corpoClientes" class="divide-y divide-white/5"></tbody></table>
                 </section>
             </div>
         </main>
@@ -151,9 +146,9 @@
         const firebaseConfig = { apiKey: "AIzaSyBBeL1Lbq71SfKoZQ4G26aZFPsiS5IFL9I", authDomain: "sistema-plac.firebaseapp.com", projectId: "sistema-plac", storageBucket: "sistema-plac.firebasestorage.app", messagingSenderId: "54513790116", appId: "1:54513790116:web:77d0722e5a8b8b10dfca31" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
-        let produtos = [], clientes = [], vendas = [], carrinho = [];
+        let produtos = [], clientes = [], vendas = [], carrinho = [], ultimaVendaSalva = null;
 
-        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.opacity='0'; setTimeout(() => { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); }, 300); } else alert("Senha inválida!"); };
+        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else alert("Senha incorreta!"); };
 
         async function carregarDadosIniciais() { 
             const pSnap = await getDocs(collection(db, "produtos")); produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
@@ -167,85 +162,103 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('tab-' + tabId).classList.remove('hidden'); 
             document.getElementById('btn-' + tabId).classList.add('active-tab');
-            document.getElementById('tab-title').innerText = tabId.toUpperCase(); 
             if(tabId === 'financeiro') renderFinanceiro(); 
         };
 
         function imprimirCupom(v, t) {
-            document.getElementById('print-content').innerHTML = `<div style="text-align:center;font-weight:bold;margin-bottom:10px;text-transform:uppercase;">${t}</div><p style="font-size:12px">Data: ${new Date(v.data).toLocaleString()}</p><p style="font-size:12px">Cliente: ${v.cliente}</p><table style="width:100%;font-size:11px;margin-top:10px;border-top:1px dashed #000;">${v.itens.map(i => `<tr><td style="padding:4px 0">${i.nome}</td><td style="text-align:center">${i.qtdVenda}x</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</table><div style="text-align:right;border-top:1px solid #000;margin-top:8px;padding-top:5px;font-size:16px;font-weight:900;">TOTAL: R$ ${v.total.toFixed(2)}</div>`;
+            document.getElementById('print-content').innerHTML = `
+                <div style="text-align:center;font-weight:bold;margin-bottom:10px;">${t}</div>
+                <p style="font-size:10px">Data: ${new Date(v.data).toLocaleString()}</p>
+                <p style="font-size:10px">Cliente: ${v.cliente}</p>
+                <table style="width:100%;font-size:10px;border-top:1px dashed #000;">
+                    ${v.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qtdVenda}x R$ ${i.preco.toFixed(2)}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}
+                </table>
+                <div style="text-align:right;border-top:1px solid #000;margin-top:5px;font-size:10px">
+                    <p>Subtotal: R$ ${v.itens.reduce((a,b)=>a+b.subtotal,0).toFixed(2)}</p>
+                    <p>Frete: R$ ${parseFloat(v.frete || 0).toFixed(2)}</p>
+                    <h3 style="font-size:14px;margin:0">TOTAL: R$ ${v.total.toFixed(2)}</h3>
+                </div>`;
             window.print();
         }
 
-        window.imprimirUltimaVenda = () => { if(vendas.length > 0) imprimirCupom(vendas[0], "COMPROVANTE DE VENDA"); };
-        window.imprimirOrcamento = () => { if(carrinho.length > 0) imprimirCupom({ cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0), itens: carrinho, data: new Date().toISOString() }, "ORÇAMENTO"); };
+        window.handleAdicionarAoCarrinho = () => { 
+            const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); 
+            const q = parseInt(document.getElementById('pdvQtd').value); 
+            if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else alert("Estoque baixo!"); 
+        };
 
-        window.handleAdicionarAoCarrinho = () => { const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); const q = parseInt(document.getElementById('pdvQtd').value); if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else alert("Estoque insuficiente!"); };
-        window.renderCarrinho = () => { let t = 0; document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-4 font-bold text-[10px] uppercase text-blue-300">${c.nome}</td><td class="text-center font-mono">${c.qtdVenda}x</td><td class="text-right font-bold">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-trash text-red-400/30 hover:text-red-400 cursor-pointer p-2"></i></td></tr>`; }).join(''); document.getElementById('pdvTotal').innerText = t.toFixed(2).replace('.', ','); };
+        window.renderCarrinho = () => { 
+            let t = 0; let f = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { 
+                t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-2 font-bold uppercase text-blue-300 text-[9px]">${c.nome}</td><td class="text-center">R$ ${c.preco.toFixed(2)}</td><td class="text-center">${c.qtdVenda}</td><td class="text-right">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-trash text-red-500 cursor-pointer p-1"></i></td></tr>`; 
+            }).join(''); 
+            document.getElementById('pdvTotal').innerText = (t + f).toFixed(2).replace('.', ','); 
+        };
         
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
-            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0), pagamento: document.getElementById('pdvPagamento').value, itens: carrinho, data: new Date().toISOString() };
+            const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, pagamento: document.getElementById('pdvPagamento').value, itens: carrinho, data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), v);
             for(let i of carrinho) await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda });
+            ultimaVendaSalva = v; document.getElementById('btnWhatsapp').style.display = 'block';
             imprimirCupom(v, "COMPROVANTE DE VENDA");
-            carrinho = []; carregarDadosIniciais();
+            carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
         };
 
-        // FINANCEIRO COM CORREÇÃO DE SOMA
+        window.enviarWhatsApp = () => {
+            if(!ultimaVendaSalva) return;
+            const cli = clientes.find(c => c.nome === ultimaVendaSalva.cliente);
+            const num = cli ? cli.whats.replace(/\D/g,'') : '';
+            let msg = `*COMPROVANTE PLAC DRYWALL*\n\n`;
+            msg += `Cliente: ${ultimaVendaSalva.cliente}\n\n`;
+            ultimaVendaSalva.itens.forEach(i => msg += `• ${i.nome} (${i.qtdVenda}x R$ ${i.preco.toFixed(2)}) = R$ ${i.subtotal.toFixed(2)}\n`);
+            msg += `\n*Frete:* R$ ${parseFloat(ultimaVendaSalva.frete).toFixed(2)}\n*TOTAL:* R$ ${ultimaVendaSalva.total.toFixed(2)}`;
+            window.open(`https://api.whatsapp.com/send?phone=55${num}&text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
         window.renderFinanceiro = () => {
-            let totalAcumulado = 0; const corpo = document.getElementById('corpoFinanceiro');
+            let total = 0; const corpo = document.getElementById('corpoFinanceiro');
             corpo.innerHTML = vendas.map(v => { 
-                totalAcumulado += v.total; 
-                return `<tr class="hover:bg-white/5 transition"><td class="py-5 text-[10px] font-mono opacity-60">${new Date(v.data).toLocaleString()}</td><td class="font-bold uppercase text-xs">${v.cliente}</td><td class="text-[10px] opacity-70">${v.pagamento||'Pix'}</td><td class="text-right font-black text-green-400">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500/40 hover:text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
+                total += v.total; 
+                return `<tr class="border-b border-white/5"><td class="py-3">${new Date(v.data).toLocaleDateString()}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right text-green-400">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
             }).join('');
-            document.getElementById('fin-total-geral').innerText = "R$ " + totalAcumulado.toFixed(2).replace('.', ',');
+            document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
         };
 
         window.estornarVenda = async (id) => {
-            if(!confirm("Deseja estornar esta venda? O estoque será devolvido.")) return;
+            if(!confirm("Excluir venda?")) return;
             const v = vendas.find(x => x.id === id);
             for(let i of v.itens) { const p = produtos.find(prod => prod.id === i.id); if(p) await updateDoc(doc(db, "produtos", i.id), { qtd: p.qtd + i.qtdVenda }); }
             await deleteDoc(doc(db, "vendas", id)); carregarDadosIniciais();
         };
 
-        window.prepararEdicaoProd = (id) => {
-            const p = produtos.find(x => x.id === id); document.getElementById('editProdId').value = p.id; document.getElementById('estNome').value = p.nome;
-            document.getElementById('estQtd').value = p.qtd; document.getElementById('estPreco').value = p.preco; document.getElementById('estNcm').value = p.ncm||"";
-            document.getElementById('estIpi').value = p.ipi||""; document.getElementById('btnSalvarProd').innerText = "Atualizar Item"; window.scrollTo(0,0);
-        };
-
-        window.prepararEdicaoCli = (id) => {
-            const c = clientes.find(x => x.id === id); document.getElementById('editCliId').value = c.id; document.getElementById('cliNome').value = c.nome;
-            document.getElementById('cliWhats').value = c.whats; document.getElementById('cliCpf').value = c.cpf||""; document.getElementById('cliEndereco').value = c.endereco||"";
-            document.getElementById('btnSalvarCli').innerText = "Atualizar Cadastro"; window.scrollTo(0,0);
-        };
-
         window.handleSalvarProduto = async () => {
             const id = document.getElementById('editProdId').value;
-            const d = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value)||0, preco: parseFloat(document.getElementById('estPreco').value)||0, ncm: document.getElementById('estNcm').value, ipi: document.getElementById('estIpi').value };
+            const d = { nome: document.getElementById('estNome').value, qtd: parseInt(document.getElementById('estQtd').value)||0, preco: parseFloat(document.getElementById('estPreco').value)||0, ncm: document.getElementById('estNcm').value||'', ipi: document.getElementById('estIpi').value||'' };
             id ? await updateDoc(doc(db, "produtos", id), d) : await addDoc(collection(db, "produtos"), d);
             limparForms(); carregarDadosIniciais();
         };
 
         window.handleSalvarCliente = async () => {
             const id = document.getElementById('editCliId').value;
-            const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value, endereco: document.getElementById('cliEndereco').value };
+            const d = { nome: document.getElementById('cliNome').value, whats: document.getElementById('cliWhats').value, cpf: document.getElementById('cliCpf').value||'', endereco: document.getElementById('cliEndereco').value||'' };
             id ? await updateDoc(doc(db, "clientes", id), d) : await addDoc(collection(db, "clientes"), d);
             limparForms(); carregarDadosIniciais();
         };
 
-        window.handleDeletar = async (col, id) => { if(confirm("Remover permanentemente?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
+        window.handleDeletar = async (col, id) => { if(confirm("Excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="hover:bg-white/5 transition"><td class="py-4 uppercase font-bold text-xs text-blue-200">${p.nome}</td><td class="font-mono text-xs">${p.qtd} un</td><td class="font-black text-xs">R$ ${p.preco.toFixed(2)}</td><td class="text-right flex gap-4 justify-end"><button onclick="prepararEdicaoProd('${p.id}')" title="Editar"><i class="fas fa-edit text-blue-400"></i></button><button onclick="handleDeletar('produtos', '${p.id}')" class="opacity-20 hover:opacity-100"><i class="fas fa-trash text-red-500"></i></button></td></tr>`).join('');
-            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="hover:bg-white/5 transition"><td class="py-4 uppercase font-bold text-xs">${c.nome}</td><td class="font-mono text-[10px] opacity-60">${c.whats}</td><td class="text-right flex gap-4 justify-end"><button onclick="prepararEdicaoCli('${c.id}')"><i class="fas fa-user-edit text-blue-400"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="opacity-20 hover:opacity-100"><i class="fas fa-trash text-red-500"></i></button></td></tr>`).join('');
+            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-2 font-bold text-blue-200 text-[11px]">${p.nome}</td><td class="text-[11px]">${p.qtd}</td><td class="text-[11px]">R$ ${p.preco.toFixed(2)}</td><td class="text-right"><button onclick="handleDeletar('produtos', '${p.id}')"><i class="fas fa-trash text-red-500 opacity-20 hover:opacity-100"></i></button></td></tr>`).join('');
+            document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 font-bold uppercase text-[11px]">${c.nome}</td><td class="text-[11px]">${c.whats}</td><td class="text-right"><button onclick="handleDeletar('clientes', '${c.id}')"><i class="fas fa-trash text-red-500 opacity-20 hover:opacity-100"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome} (Qtd: ${p.qtd})</option>`).join('');
+            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
             document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
             document.getElementById('dash-estoque-count').innerText = produtos.length; document.getElementById('dash-clientes-count').innerText = clientes.length;
         }
 
-        function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('editProdId').value = ""; document.getElementById('editCliId').value = ""; document.getElementById('btnSalvarProd').innerText = "Salvar Alterações"; document.getElementById('btnSalvarCli').innerText = "Registrar / Atualizar Cliente"; }
+        function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('editProdId').value = ""; document.getElementById('editCliId').value = ""; }
     </script>
 </body>
 </html>
