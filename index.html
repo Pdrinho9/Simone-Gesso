@@ -166,8 +166,8 @@
                 <p style="font-size:10px"><b>DATA:</b> ${new Date(v.data).toLocaleString()}</p>
                 <p style="font-size:10px"><b>CLIENTE:</b> ${v.cliente}</p>
                 <table style="width:100%;font-size:10px;border-top:1px dashed #000;margin-top:10px">
-                    <thead><tr><th style="text-align:left">Item</th><th style="text-align:center">Qtd</th><th style="text-align:right">Total</th></tr></thead>
-                    <tbody>${v.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">${i.qtdVenda}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
+                    <thead><tr><th style="text-align:left">Item</th><th style="text-align:center">Preço Un.</th><th style="text-align:center">Qtd</th><th style="text-align:right">Subtotal</th></tr></thead>
+                    <tbody>${v.itens.map(i => `<tr><td>${i.nome}</td><td style="text-align:center">R$ ${i.preco.toFixed(2)}</td><td style="text-align:center">${i.qtdVenda}</td><td style="text-align:right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
                 <div style="text-align:right;border-top:1px solid #000;margin-top:5px;font-size:10px">
                     <p>Subtotal: R$ ${(v.total - (v.frete || 0)).toFixed(2)}</p>
@@ -242,7 +242,6 @@
             carregarDadosIniciais();
         };
 
-        // EDITAR PRODUTO (NO LÁPIS)
         window.prepararEdicaoProd = (id) => {
             const p = produtos.find(item => item.id === id);
             if(!p) return;
@@ -263,7 +262,6 @@
             limparForms(); carregarDadosIniciais();
         };
 
-        // EDITAR CLIENTE (NO LÁPIS)
         window.prepararEdicaoCli = (id) => {
             const c = clientes.find(item => item.id === id);
             if(!c) return;
@@ -286,7 +284,6 @@
         window.handleDeletar = async (col, id) => { if(confirm("Deseja mesmo excluir?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            // Render com Ícones de Editar/Excluir Juntos
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td><td class="text-center">${p.qtd}</td><td class="text-right">R$ ${p.preco.toFixed(2)}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoProd('${p.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoCli('${c.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
