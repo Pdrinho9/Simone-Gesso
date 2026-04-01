@@ -88,11 +88,12 @@
                     <div class="lg:col-span-2 glass p-6 space-y-4">
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-3 rounded-lg">+</button></div></div>
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Produto</label><select id="pdvSelect" class="w-full"></select></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Produto</label><select id="pdvSelect" class="w-full" onchange="atualizarPrecoUnitario()"></select></div>
                         </div>
-                        <div class="flex gap-3 items-end">
-                            <div class="w-20"><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="flex-1 bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
+                        <div class="grid grid-cols-3 gap-3 items-end">
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase text-blue-400 font-bold">Preço Unitário (R$)</label><input type="number" id="pdvPrecoUnit" step="0.01" class="w-full"></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
                         </div>
                         <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Preço</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
                     </div>
@@ -114,6 +115,10 @@
                 </section>
 
                 <section id="tab-estoque" class="tab-content hidden glass p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-black uppercase">Controle de Estoque</h2>
+                        <button onclick="imprimirRelatorioEstoque()" class="bg-gray-600 px-4 py-2 rounded-lg font-bold uppercase text-[10px] hover:bg-gray-500"><i class="fas fa-print mr-2"></i>Imprimir Relatório</button>
+                    </div>
                     <div class="grid grid-cols-3 gap-3 mb-6">
                         <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto"><input type="number" id="estQtd" placeholder="Qtd">
                         <input type="number" id="estPreco" placeholder="Preço Venda"><input type="text" id="estNcm" placeholder="NCM"><input type="number" id="estIpi" placeholder="IPI %">
@@ -150,6 +155,7 @@
             const cSnap = await getDocs(collection(db, "clientes")); clientes = cSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
             const vSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc"))); vendas = vSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
             renderTudo(); 
+            atualizarPrecoUnitario();
         }
 
         window.showTab = (tabId) => { 
@@ -158,6 +164,12 @@
             document.getElementById('tab-' + tabId).classList.remove('hidden'); 
             document.getElementById('btn-' + tabId).classList.add('active-tab');
             if(tabId === 'financeiro') renderFinanceiro(); 
+        };
+
+        window.atualizarPrecoUnitario = () => {
+            const selId = document.getElementById('pdvSelect').value;
+            const p = produtos.find(i => i.id === selId);
+            if(p) document.getElementById('pdvPrecoUnit').value = p.preco;
         };
 
         function dispararImpressao(v, titulo) {
@@ -178,6 +190,16 @@
             window.print();
         }
 
+        window.imprimirRelatorioEstoque = () => {
+            let html = `<div style="text-align:center;font-weight:bold;margin-bottom:20px;text-transform:uppercase;border-bottom:1px solid black;padding-bottom:10px">RELATÓRIO DE ESTOQUE ATUAL</div>
+                <table style="width:100%;font-size:11px;border-collapse:collapse;">
+                <thead><tr style="border-bottom:1px solid #ddd;background:#f5f5f5"><th style="text-align:left;padding:8px">Produto</th><th style="text-align:center;padding:8px">Qtd</th><th style="text-align:right;padding:8px">Preço</th></tr></thead>
+                <tbody>${produtos.map(p => `<tr style="border-bottom:1px solid #eee"><td style="padding:8px">${p.nome}</td><td style="text-align:center;padding:8px">${p.qtd}</td><td style="text-align:right;padding:8px">R$ ${p.preco.toFixed(2)}</td></tr>`).join('')}</tbody>
+                </table>`;
+            document.getElementById('print-content').innerHTML = html;
+            window.print();
+        }
+
         window.imprimirOrcamento = () => {
             if(carrinho.length === 0) return alert("Adicione itens!");
             const f = parseFloat(document.getElementById('pdvFrete').value) || 0;
@@ -188,15 +210,24 @@
         window.handleAdicionarAoCarrinho = () => { 
             const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); 
             const q = parseInt(document.getElementById('pdvQtd').value); 
-            if(p && p.qtd >= q) { carrinho.push({...p, qtdVenda: q, subtotal: p.preco * q}); renderCarrinho(); } else alert("Estoque insuficiente!"); 
+            const precoManual = parseFloat(document.getElementById('pdvPrecoUnit').value) || 0;
+            if(p && p.qtd >= q) { 
+                carrinho.push({...p, preco: precoManual, qtdVenda: q, subtotal: precoManual * q}); 
+                renderCarrinho(); 
+            } else alert("Estoque insuficiente!"); 
         };
 
         window.renderCarrinho = () => { 
             let t = 0; let f = parseFloat(document.getElementById('pdvFrete').value) || 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { 
-                t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-2 text-blue-300 font-bold uppercase">${c.nome}</td><td class="text-center">R$ ${c.preco.toFixed(2)}</td><td class="text-center">${c.qtdVenda}</td><td class="text-right font-bold">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right" onclick="carrinho.splice(${i},1);renderCarrinho()"><i class="fas fa-trash text-red-500 cursor-pointer p-1"></i></td></tr>`; 
+                t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-2 text-blue-300 font-bold uppercase">${c.nome}</td><td class="text-center">R$ ${c.preco.toFixed(2)}</td><td class="text-center">${c.qtdVenda}</td><td class="text-right font-bold">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right"><button onclick="removerDoCarrinho(${i})" class="text-red-500 p-1"><i class="fas fa-trash"></i></button></td></tr>`; 
             }).join(''); 
             document.getElementById('pdvTotal').innerText = (t + f).toFixed(2).replace('.', ','); 
+        };
+
+        window.removerDoCarrinho = (index) => {
+            carrinho.splice(index, 1);
+            renderCarrinho();
         };
         
         window.handleFinalizarVenda = async () => {
