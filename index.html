@@ -177,6 +177,7 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('tab-' + tabId).classList.remove('hidden'); 
             document.getElementById('btn-' + tabId).classList.add('active-tab');
+            document.getElementById('tab-title').innerText = tabId;
             if(tabId === 'financeiro') renderFinanceiro(vendas); 
         };
 
@@ -185,8 +186,6 @@
             const p = produtos.find(i => i.id === selId);
             if(p) document.getElementById('pdvPrecoUnit').value = p.preco;
         };
-
-        // ... Outras funções de impressão e carrinho permanecem iguais ...
 
         window.handleAdicionarAoCarrinho = () => { 
             const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); 
@@ -209,7 +208,7 @@
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
             const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
-            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, pagamento: document.getElementById('pdvPagamento').value, itens: carrinho, data: new Date().toISOString() };
+            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, pagamento: document.getElementById('pdvPagamento').value, itens: [...carrinho], data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), v);
             for(let i of carrinho) await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda });
             ultimaVendaSalva = v; document.getElementById('btnWhatsapp').style.display = 'block';
@@ -217,12 +216,59 @@
             carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
         };
 
-        // --- FUNÇÕES DE FINANCEIRO COM FILTRO ---
+        // --- LÓGICA DE IMPRESSÃO ---
+        function dispararImpressao(venda, titulo) {
+            const html = `
+                <h3 style="text-align:center; border-bottom:1px solid #ddd; padding-bottom:5px">${titulo}</h3>
+                <p><b>Cliente:</b> ${venda.cliente}</p>
+                <p><b>Data:</b> ${new Date(venda.data).toLocaleString('pt-BR')}</p>
+                <p><b>Pagamento:</b> ${venda.pagamento}</p>
+                <hr>
+                <table style="width:100%; font-size:12px">
+                    <thead><tr><th align="left">Item</th><th align="center">Qtd</th><th align="right">Sub</th></tr></thead>
+                    <tbody>${venda.itens.map(i => `<tr><td>${i.nome}</td><td align="center">${i.qtdVenda}</td><td align="right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
+                </table>
+                <hr>
+                <p align="right">Frete: R$ ${venda.frete.toFixed(2)}</p>
+                <p align="right" style="font-size:16px"><b>TOTAL: R$ ${venda.total.toFixed(2)}</b></p>
+            `;
+            document.getElementById('print-content').innerHTML = html;
+            window.print();
+        }
 
+        window.imprimirOrcamento = () => {
+            if(carrinho.length === 0) return alert("Carrinho vazio!");
+            const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            const tempVenda = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, pagamento: document.getElementById('pdvPagamento').value, itens: carrinho, data: new Date().toISOString() };
+            dispararImpressao(tempVenda, "ORÇAMENTO (NÃO É VALIDO COMO RECIBO)");
+        };
+
+        window.imprimirRelatorioEstoque = () => {
+            const html = `
+                <h3 style="text-align:center">RELATÓRIO DE ESTOQUE ATUAL</h3>
+                <table style="width:100%; border-collapse:collapse; font-size:11px" border="1">
+                    <thead><tr style="background:#eee"><th>PRODUTO</th><th>QTD</th><th>PREÇO</th><th>VALOR TOTAL</th></tr></thead>
+                    <tbody>${produtos.map(p => `<tr><td>${p.nome}</td><td align="center">${p.qtd}</td><td align="right">R$ ${p.preco.toFixed(2)}</td><td align="right">R$ ${(p.qtd * p.preco).toFixed(2)}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+            document.getElementById('print-content').innerHTML = html;
+            window.print();
+        };
+
+        window.enviarWhatsApp = () => {
+            if(!ultimaVendaSalva) return;
+            const c = clientes.find(x => x.nome === ultimaVendaSalva.cliente);
+            if(!c || !c.whats) return alert("Cliente sem WhatsApp cadastrado!");
+            let msg = `*PLAC DRYWALL - Comprovante*\n\nOlá ${c.nome}, segue resumo:\n`;
+            ultimaVendaSalva.itens.forEach(i => msg += `- ${i.nome} (x${i.qtdVenda})\n`);
+            msg += `\n*Total: R$ ${ultimaVendaSalva.total.toFixed(2)}*`;
+            window.open(`https://wa.me/55${c.whats.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
+        };
+
+        // --- FINANCEIRO E FILTROS ---
         window.renderFinanceiro = (listaVendas) => {
             let total = 0; const corpo = document.getElementById('corpoFinanceiro');
             if(!corpo) return;
-            
             corpo.innerHTML = listaVendas.map(v => { 
                 total += v.total; 
                 return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
@@ -233,14 +279,11 @@
         window.filtrarPorData = () => {
             const inicio = document.getElementById('filtroDataInicio').value;
             const fim = document.getElementById('filtroDataFim').value;
-
             if(!inicio || !fim) return alert("Selecione data de início e fim.");
-
             const filtradas = vendas.filter(v => {
-                const dataVenda = v.data.split('T')[0]; // Pega apenas a parte YYYY-MM-DD
+                const dataVenda = v.data.split('T')[0];
                 return dataVenda >= inicio && dataVenda <= fim;
             });
-
             renderFinanceiro(filtradas);
         };
 
@@ -249,8 +292,6 @@
             document.getElementById('filtroDataFim').value = '';
             renderFinanceiro(vendas);
         };
-
-        // --- MANUTENÇÃO DAS OUTRAS FUNÇÕES ---
 
         window.estornarVenda = async (id) => {
             if(!confirm("Excluir venda e devolver estoque?")) return;
@@ -292,8 +333,6 @@
         }
 
         function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('editProdId').value = ""; document.getElementById('editCliId').value = ""; }
-        
-        // Torna globais funções necessárias
         window.removerDoCarrinho = (index) => { carrinho.splice(index, 1); renderCarrinho(); };
         window.prepararEdicaoProd = (id) => {
             const p = produtos.find(item => item.id === id);
@@ -311,7 +350,6 @@
             document.getElementById('cliCpf').value = c.cpf || ''; document.getElementById('cliEndereco').value = c.endereco || '';
             document.getElementById('btnSalvarCli').innerText = "Atualizar Cliente";
         };
-
     </script>
 </body>
 </html>
