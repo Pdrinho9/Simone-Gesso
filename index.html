@@ -34,6 +34,10 @@
             <p style="font-size: 11px; font-weight: bold;">WhatsApp: (19) 98814-7888</p>
         </div>
         <div id="print-content" style="color: black;"></div>
+        <div style="margin-top: 20px; border-top: 1px dashed black; padding-top: 10px; font-size: 9px; text-align: center; color: black;">
+            <p>*CALCULO APROXIMADO, NAO NOS RESPONSABILIZAMOS POR SOBRAS E FALTAS*</p>
+            <p>*DISTANCIA PARA DESCARREGAR NO MAXIMO 10MTS DO CAMINHAO*</p>
+        </div>
     </div>
 
     <div id="login-screen">
@@ -73,6 +77,53 @@
                     </div>
                 </section>
 
+                <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="lg:col-span-2 glass p-6 space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-3 rounded-lg">+</button></div></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Produto</label><select id="pdvSelect" class="w-full" onchange="atualizarPrecoUnitario()"></select></div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 items-end">
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase text-blue-400 font-bold">Preço Unitário (R$)</label><input type="number" id="pdvPrecoUnit" step="0.01" class="w-full"></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
+                            <button onclick="handleAdicionarAoCarrinho()" class="bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
+                        </div>
+                        <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Preço</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
+                    </div>
+                    <div class="glass p-6 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
+                        <div>
+                            <p class="text-[9px] uppercase font-bold opacity-50 mb-1 text-blue-400">Total da Venda</p>
+                            <h2 class="text-4xl font-black mb-4 tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
+                            
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-yellow-500">Valor do Frete (R$)</label>
+                            <input type="number" id="pdvFrete" value="0" oninput="renderCarrinho()" class="w-full mb-3">
+                            
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold">Forma de Pagamento</label>
+                            <select id="pdvPagamento" class="w-full mb-3" onchange="togglePagamentoMisto()">
+                                <option value="Pix">Pix</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="Cartão">Cartão</option>
+                                <option value="Misto">Misto (Dinheiro + Cartão)</option>
+                            </select>
+
+                            <div id="camposMisto" class="hidden space-y-2 mb-4 p-3 bg-black/20 rounded-xl border border-white/10">
+                                <div>
+                                    <label class="text-[8px] uppercase opacity-50">Parte em Dinheiro (R$)</label>
+                                    <input type="number" id="mistoDinheiro" value="0" step="0.01" class="w-full">
+                                </div>
+                                <div>
+                                    <label class="text-[8px] uppercase opacity-50">Parte em Cartão (R$)</label>
+                                    <input type="number" id="mistoCartao" value="0" step="0.01" class="w-full">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-4 rounded-2xl font-black text-lg uppercase shadow-lg">Finalizar e Imprimir</button>
+                            <button id="btnWhatsapp" onclick="enviarWhatsApp()" style="display:none;" class="w-full bg-green-600 py-3 rounded-xl font-bold uppercase text-[9px]"><i class="fab fa-whatsapp mr-1"></i> Enviar Comprovante</button>
+                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Imprimir Orçamento</button>
+                        </div>
+                    </div>
+                </section>
                 <section id="tab-financeiro" class="tab-content hidden glass p-6">
                     <div class="flex justify-between items-end mb-6">
                         <h2 class="text-lg font-black uppercase">Fluxo de Caixa</h2>
@@ -91,39 +142,9 @@
                         <button onclick="window.limparFiltroData()" class="bg-white/10 px-4 h-[38px] rounded-lg font-bold text-[10px] uppercase hover:bg-white/20 transition-all">Limpar</button>
                     </div>
                     <table class="w-full text-left text-xs">
-                        <thead><tr class="opacity-40 uppercase text-[9px] border-b border-white/10"><th class="pb-3">Data</th><th class="pb-3">Cliente</th><th class="pb-3 text-right">Valor</th><th class="pb-3 text-right">Ações</th></tr></thead>
+                        <thead><tr class="opacity-40 uppercase text-[9px] border-b border-white/10"><th class="pb-3">Data</th><th class="pb-3">Cliente</th><th class="pb-3">Pagamento</th><th class="pb-3 text-right">Valor</th><th class="pb-3 text-right">Ações</th></tr></thead>
                         <tbody id="corpoFinanceiro"></tbody>
                     </table>
-                </section>
-
-                <section id="tab-pdv" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <div class="lg:col-span-2 glass p-6 space-y-4">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-3 rounded-lg">+</button></div></div>
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Produto</label><select id="pdvSelect" class="w-full" onchange="atualizarPrecoUnitario()"></select></div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-3 items-end">
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase text-blue-400 font-bold">Preço Unitário (R$)</label><input type="number" id="pdvPrecoUnit" step="0.01" class="w-full"></div>
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
-                            <button onclick="handleAdicionarAoCarrinho()" class="bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
-                        </div>
-                        <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Preço</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
-                    </div>
-                    <div class="glass p-6 flex flex-col justify-between bg-blue-600/10 border-l-4 border-blue-500">
-                        <div>
-                            <p class="text-[9px] uppercase font-bold opacity-50 mb-1 text-blue-400">Total da Venda</p>
-                            <h2 class="text-4xl font-black mb-4 tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
-                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-yellow-500">Valor do Frete (R$)</label>
-                            <input type="number" id="pdvFrete" value="0" oninput="renderCarrinho()" class="w-full mb-3">
-                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold">Forma de Pagamento</label>
-                            <select id="pdvPagamento" class="w-full mb-4"><option value="Pix">Pix</option><option value="Dinheiro">Dinheiro</option><option value="Cartão">Cartão</option></select>
-                        </div>
-                        <div class="space-y-2">
-                            <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-4 rounded-2xl font-black text-lg uppercase shadow-lg">Finalizar e Imprimir</button>
-                            <button id="btnWhatsapp" onclick="enviarWhatsApp()" style="display:none;" class="w-full bg-green-600 py-3 rounded-xl font-bold uppercase text-[9px]"><i class="fab fa-whatsapp mr-1"></i> Enviar Comprovante</button>
-                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Imprimir Orçamento</button>
-                        </div>
-                    </div>
                 </section>
 
                 <section id="tab-estoque" class="tab-content hidden glass p-6">
@@ -185,12 +206,19 @@
             if(p) document.getElementById('pdvPrecoUnit').value = p.preco;
         };
 
+        window.togglePagamentoMisto = () => {
+            const tipo = document.getElementById('pdvPagamento').value;
+            const campos = document.getElementById('camposMisto');
+            tipo === 'Misto' ? campos.classList.remove('hidden') : campos.classList.add('hidden');
+        };
+
         window.handleAdicionarAoCarrinho = () => { 
-            const p = produtos.find(i => i.id === document.getElementById('pdvSelect').value); 
+            const pId = document.getElementById('pdvSelect').value;
+            const p = produtos.find(i => i.id === pId); 
             const q = parseInt(document.getElementById('pdvQtd').value); 
             const precoManual = parseFloat(document.getElementById('pdvPrecoUnit').value) || 0;
             if(p && p.qtd >= q) { 
-                carrinho.push({...p, preco: precoManual, qtdVenda: q, subtotal: precoManual * q}); 
+                carrinho.push({ id: p.id, nome: p.nome, preco: precoManual, qtdVenda: q, subtotal: precoManual * q}); 
                 renderCarrinho(); 
             } else alert("Estoque insuficiente!"); 
         };
@@ -206,16 +234,28 @@
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
             const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
-            const v = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, pagamento: document.getElementById('pdvPagamento').value, itens: [...carrinho], data: new Date().toISOString() };
+            const totalCores = carrinho.reduce((a,b)=>a+b.subtotal,0) + frete;
+            
+            let formaPagamentoStr = document.getElementById('pdvPagamento').value;
+            if(formaPagamentoStr === 'Misto') {
+                const din = parseFloat(document.getElementById('mistoDinheiro').value) || 0;
+                const cart = parseFloat(document.getElementById('mistoCartao').value) || 0;
+                formaPagamentoStr = `Misto (Din: R$ ${din.toFixed(2)} + Cart: R$ ${cart.toFixed(2)})`;
+            }
+
+            const v = { cliente: document.getElementById('pdvCliente').value, total: totalCores, frete: frete, pagamento: formaPagamentoStr, itens: [...carrinho], data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), v);
-            for(let i of carrinho) await updateDoc(doc(db, "produtos", i.id), { qtd: i.qtd - i.qtdVenda });
+            for(let i of carrinho) {
+                const pDoc = produtos.find(p => p.id === i.id);
+                await updateDoc(doc(db, "produtos", i.id), { qtd: pDoc.qtd - i.qtdVenda });
+            }
             ultimaVendaSalva = v; 
             document.getElementById('btnWhatsapp').style.display = 'block';
             dispararImpressao(v, "COMPROVANTE DE VENDA");
             carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
+            document.getElementById('pdvPagamento').value = 'Pix'; togglePagamentoMisto();
         };
 
-        // --- CORREÇÃO DA IMPRESSÃO (ADICIONADO PREÇO UNITÁRIO) ---
         function dispararImpressao(venda, titulo) {
             const html = `
                 <h3 style="text-align:center; border-bottom:1px solid #ddd; padding-bottom:5px">${titulo}</h3>
@@ -224,24 +264,8 @@
                 <p style="font-size:12px"><b>Pagamento:</b> ${venda.pagamento}</p>
                 <hr>
                 <table style="width:100%; font-size:11px; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid #eee">
-                            <th align="left">Item</th>
-                            <th align="center">Qtd</th>
-                            <th align="center">V. Unit</th>
-                            <th align="right">Sub</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${venda.itens.map(i => `
-                            <tr>
-                                <td style="padding: 4px 0;">${i.nome}</td>
-                                <td align="center">${i.qtdVenda}</td>
-                                <td align="center">R$ ${i.preco.toFixed(2)}</td>
-                                <td align="right">R$ ${i.subtotal.toFixed(2)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
+                    <thead><tr style="border-bottom: 1px solid #eee"><th align="left">Item</th><th align="center">Qtd</th><th align="center">V. Unit</th><th align="right">Sub</th></tr></thead>
+                    <tbody>${venda.itens.map(i => `<tr><td style="padding: 4px 0;">${i.nome}</td><td align="center">${i.qtdVenda}</td><td align="center">R$ ${i.preco.toFixed(2)}</td><td align="right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
                 <hr>
                 <p align="right" style="font-size:11px">Frete: R$ ${venda.frete.toFixed(2)}</p>
@@ -277,17 +301,16 @@
             let msg = `*PLAC DRYWALL*\n\nOlá ${c.nome}, segue seu comprovante:\n\n`;
             ultimaVendaSalva.itens.forEach(i => msg += `- ${i.nome} (Qtd: ${i.qtdVenda} x R$ ${i.preco.toFixed(2)})\n`);
             if(ultimaVendaSalva.frete > 0) msg += `*Frete:* R$ ${ultimaVendaSalva.frete.toFixed(2)}\n`;
-            msg += `\n*Total:* R$ ${ultimaVendaSalva.total.toFixed(2)}\n*Pagamento:* ${ultimaVendaSalva.pagamento}`;
+            msg += `\n*Total:* R$ ${ultimaVendaSalva.total.toFixed(2)}\n*Pagamento:* ${ultimaVendaSalva.pagamento}\n\n*OBSERVAÇÕES:*\n- Cálculo aproximado, não nos responsabilizamos por sobras e faltas.\n- Distância para descarregar máxima de 10m do caminhão.`;
             window.open(`https://wa.me/55${c.whats.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
         };
 
-        // --- FINANCEIRO ---
         window.renderFinanceiro = (listaVendas) => {
             let total = 0; const corpo = document.getElementById('corpoFinanceiro');
             if(!corpo) return;
             corpo.innerHTML = listaVendas.map(v => { 
                 total += v.total; 
-                return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
+                return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-[9px] opacity-70">${v.pagamento}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
             }).join('');
             document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
         };
