@@ -94,7 +94,7 @@
                         </div>
                         <div class="grid grid-cols-3 gap-3 items-end">
                             <div><label class="text-[9px] opacity-50 mb-1 block uppercase text-blue-400 font-bold">Preço Unitário (R$)</label><input type="number" id="pdvPrecoUnit" step="0.01" class="w-full"></div>
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdv稳Qtd" value="1" min="1" id="pdvQtd" class="w-full text-center"></div>
                             <button onclick="handleAdicionarAoCarrinho()" class="bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
                         </div>
                         <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Preço</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
@@ -334,6 +334,23 @@
             if(o) dispararImpressao(o, "ORÇAMENTO DE VENDA (REIMPRESSÃO)");
         };
 
+        window.puxarOrcamentoParaPDV = (id) => {
+            const o = orcamentos.find(x => x.id === id);
+            if (!o) return;
+            
+            // Define o cliente do orçamento no select do PDV
+            document.getElementById('pdvCliente').value = o.cliente;
+            // Define o valor do frete original
+            document.getElementById('pdvFrete').value = o.frete || 0;
+            // Preenche o carrinho temporário com os itens do orçamento
+            carrinho = [...o.itens];
+            
+            // Renderiza e muda de aba
+            renderCarrinho();
+            window.showTab('pdv');
+            alert(`Orçamento de ${o.cliente} carregado no PDV! Você pode alterar e salvar como venda ou gerar um novo orçamento.`);
+        };
+
         window.deletarOrcamento = async (id) => {
             if(confirm("Deseja realmente apagar este orçamento salvo?")) {
                 await deleteDoc(doc(db, "orcamentos", id));
@@ -350,6 +367,7 @@
                     <td class="font-bold uppercase">${o.cliente}</td>
                     <td class="text-right text-cyan-400 font-black">R$ ${o.total.toFixed(2)}</td>
                     <td class="text-right whitespace-nowrap">
+                        <button onclick="puxarOrcamentoParaPDV('${o.id}')" class="text-blue-400 mr-4 opacity-70 hover:opacity-100" title="Editar / Puxar pro PDV"><i class="fas fa-edit"></i></button>
                         <button onclick="reimprimirOrcamentoHistorico('${o.id}')" class="text-cyan-400 mr-4 opacity-70 hover:opacity-100" title="Reimprimir"><i class="fas fa-print"></i></button>
                         <button onclick="deletarOrcamento('${o.id}')" class="text-red-500 opacity-40 hover:opacity-100" title="Excluir"><i class="fas fa-trash-alt"></i></button>
                     </td>
