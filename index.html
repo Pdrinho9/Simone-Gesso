@@ -23,6 +23,9 @@
             #print-area, #print-area * { visibility: visible; }
             #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
         }
+        .search-results { position: absolute; left: 0; right: 0; top: 40px; background: #1e293b; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 50; }
+        .search-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+        .search-item:hover { background: #3b82f6; }
     </style>
 </head>
 <body>
@@ -54,6 +57,7 @@
             <nav class="flex-1 space-y-1">
                 <button onclick="showTab('dashboard')" id="btn-dashboard" class="nav-btn active-tab"><i class="fas fa-home mr-3 text-blue-400"></i> Início</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="nav-btn"><i class="fas fa-shopping-bag mr-3 text-yellow-400"></i> PDV / Vendas</button>
+                <button onclick="showTab('orcamentos_salvos')" id="btn-orcamentos_salvos" class="nav-btn"><i class="fas fa-file-alt mr-3 text-cyan-400"></i> Orçamentos</button>
                 <button onclick="showTab('financeiro')" id="btn-financeiro" class="nav-btn"><i class="fas fa-wallet mr-3 text-green-400"></i> Financeiro</button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="nav-btn"><i class="fas fa-user-friends mr-3 text-purple-400"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="nav-btn"><i class="fas fa-box-open mr-3 text-orange-400"></i> Estoque</button>
@@ -81,7 +85,12 @@
                     <div class="lg:col-span-2 glass p-6 space-y-4">
                         <div class="grid grid-cols-2 gap-3">
                             <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Cliente</label><div class="flex gap-2"><select id="pdvCliente" class="flex-1"></select><button onclick="showTab('clientes')" class="bg-blue-600 px-3 rounded-lg">+</button></div></div>
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Produto</label><select id="pdvSelect" class="w-full" onchange="atualizarPrecoUnitario()"></select></div>
+                            <div class="relative">
+                                <label class="text-[9px] opacity-50 mb-1 block uppercase">Buscar Produto</label>
+                                <input type="text" id="pdvBuscaProduto" placeholder="Digite o nome do produto..." class="w-full" oninput="window.filtrarBuscaProduto()">
+                                <input type="hidden" id="pdvSelect">
+                                <div id="pdvResultadosBusca" class="search-results hidden"></div>
+                            </div>
                         </div>
                         <div class="grid grid-cols-3 gap-3 items-end">
                             <div><label class="text-[9px] opacity-50 mb-1 block uppercase text-blue-400 font-bold">Preço Unitário (R$)</label><input type="number" id="pdvPrecoUnit" step="0.01" class="w-full"></div>
@@ -120,10 +129,22 @@
                         <div class="space-y-2">
                             <button onclick="handleFinalizarVenda()" class="w-full bg-green-500 py-4 rounded-2xl font-black text-lg uppercase shadow-lg">Finalizar e Imprimir</button>
                             <button id="btnWhatsapp" onclick="enviarWhatsApp()" style="display:none;" class="w-full bg-green-600 py-3 rounded-xl font-bold uppercase text-[9px]"><i class="fab fa-whatsapp mr-1"></i> Enviar Comprovante</button>
-                            <button onclick="imprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Imprimir Orçamento</button>
+                            <button onclick="salvarEImprimirOrcamento()" class="w-full bg-yellow-600/20 text-yellow-500 py-3 rounded-xl font-bold uppercase text-[9px]">Salvar e Imprimir Orçamento</button>
                         </div>
                     </div>
                 </section>
+
+                <section id="tab-orcamentos_salvos" class="tab-content hidden glass p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-black uppercase">Orçamentos Salvos</h2>
+                        <input type="text" id="buscaOrcamentoCliente" placeholder="Buscar por cliente..." oninput="window.filtrarOrcamentos()" class="w-64">
+                    </div>
+                    <table class="w-full text-left text-xs">
+                        <thead><tr class="opacity-40 uppercase text-[9px] border-b border-white/10"><th class="pb-3">Data</th><th class="pb-3">Cliente</th><th class="pb-3 text-right">Valor Total</th><th class="pb-3 text-right">Ações</th></tr></thead>
+                        <tbody id="corpoOrcamentos"></tbody>
+                    </table>
+                </section>
+
                 <section id="tab-financeiro" class="tab-content hidden glass p-6">
                     <div class="flex justify-between items-end mb-6">
                         <h2 class="text-lg font-black uppercase">Fluxo de Caixa</h2>
@@ -179,7 +200,7 @@
         const firebaseConfig = { apiKey: "AIzaSyBBeL1Lbq71SfKoZQ4G26aZFPsiS5IFL9I", authDomain: "sistema-plac.firebaseapp.com", projectId: "sistema-plac", storageBucket: "sistema-plac.firebasestorage.app", messagingSenderId: "54513790116", appId: "1:54513790116:web:77d0722e5a8b8b10dfca31" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
-        let produtos = [], clientes = [], vendas = [], carrinho = [], ultimaVendaSalva = null;
+        let produtos = [], clientes = [], vendas = [], orcamentos = [], carrinho = [], ultimaVendaSalva = null;
 
         window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else alert("Acesso Negado!"); };
 
@@ -187,8 +208,8 @@
             const pSnap = await getDocs(collection(db, "produtos")); produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
             const cSnap = await getDocs(collection(db, "clientes")); clientes = cSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
             const vSnap = await getDocs(query(collection(db, "vendas"), orderBy("data", "desc"))); vendas = vSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
+            const oSnap = await getDocs(query(collection(db, "orcamentos"), orderBy("data", "desc"))); orcamentos = oSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
             renderTudo(); 
-            atualizarPrecoUnitario();
         }
 
         window.showTab = (tabId) => { 
@@ -196,14 +217,32 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('tab-' + tabId).classList.remove('hidden'); 
             document.getElementById('btn-' + tabId).classList.add('active-tab');
-            document.getElementById('tab-title').innerText = tabId.toUpperCase();
+            document.getElementById('tab-title').innerText = tabId.toUpperCase().replace('_', ' ');
             if(tabId === 'financeiro') renderFinanceiro(vendas); 
+            if(tabId === 'orcamentos_salvos') renderOrcamentos(orcamentos);
         };
 
-        window.atualizarPrecoUnitario = () => {
-            const selId = document.getElementById('pdvSelect').value;
-            const p = produtos.find(i => i.id === selId);
-            if(p) document.getElementById('pdvPrecoUnit').value = p.preco;
+        window.filtrarBuscaProduto = () => {
+            const termo = document.getElementById('pdvBuscaProduto').value.toLowerCase();
+            const container = document.getElementById('pdvResultadosBusca');
+            if (!termo) { container.classList.add('hidden'); return; }
+            
+            const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo));
+            if (filtrados.length === 0) { container.classList.add('hidden'); return; }
+
+            container.innerHTML = filtrados.map(p => `
+                <div class="search-item" onclick="window.selecionarProdutoBusca('${p.id}', '${p.nome.replace(/'/g, "\\'")}', ${p.preco})">
+                    <span class="font-bold">${p.nome}</span> - <span class="text-blue-400">R$ ${p.preco.toFixed(2)}</span> <span class="text-[10px] opacity-50">(${p.qtd} em est.)</span>
+                </div>
+            `).join('');
+            container.classList.remove('hidden');
+        };
+
+        window.selecionarProdutoBusca = (id, nome, preco) => {
+            document.getElementById('pdvSelect').value = id;
+            document.getElementById('pdvBuscaProduto').value = nome;
+            document.getElementById('pdvPrecoUnit').value = preco;
+            document.getElementById('pdvResultadosBusca').classList.add('hidden');
         };
 
         window.togglePagamentoMisto = () => {
@@ -220,7 +259,11 @@
             if(p && p.qtd >= q) { 
                 carrinho.push({ id: p.id, nome: p.nome, preco: precoManual, qtdVenda: q, subtotal: precoManual * q}); 
                 renderCarrinho(); 
-            } else alert("Estoque insuficiente!"); 
+                document.getElementById('pdvSelect').value = '';
+                document.getElementById('pdvBuscaProduto').value = '';
+                document.getElementById('pdvPrecoUnit').value = '';
+                document.getElementById('pdvQtd').value = '1';
+            } else alert("Estoque insuficiente ou produto inválido!"); 
         };
 
         window.renderCarrinho = () => { 
@@ -261,7 +304,7 @@
                 <h3 style="text-align:center; border-bottom:1px solid #ddd; padding-bottom:5px">${titulo}</h3>
                 <p style="font-size:12px"><b>Cliente:</b> ${venda.cliente}</p>
                 <p style="font-size:12px"><b>Data:</b> ${new Date(venda.data).toLocaleString('pt-BR')}</p>
-                <p style="font-size:12px"><b>Pagamento:</b> ${venda.pagamento}</p>
+                ${venda.pagamento ? `<p style="font-size:12px"><b>Pagamento:</b> ${venda.pagamento}</p>` : ''}
                 <hr>
                 <table style="width:100%; font-size:11px; border-collapse: collapse;">
                     <thead><tr style="border-bottom: 1px solid #eee"><th align="left">Item</th><th align="center">Qtd</th><th align="center">V. Unit</th><th align="right">Sub</th></tr></thead>
@@ -275,11 +318,49 @@
             window.print();
         }
 
-        window.imprimirOrcamento = () => {
+        window.salvarEImprimirOrcamento = async () => {
             if(carrinho.length === 0) return alert("Adicione itens ao carrinho primeiro!");
             const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
-            const tempVenda = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, pagamento: document.getElementById('pdvPagamento').value, itens: [...carrinho], data: new Date().toISOString() };
-            dispararImpressao(tempVenda, "ORÇAMENTO DE VENDA");
+            const tempOrcamento = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, itens: [...carrinho], data: new Date().toISOString() };
+            
+            await addDoc(collection(db, "orcamentos"), tempOrcamento);
+            dispararImpressao(tempOrcamento, "ORÇAMENTO DE VENDA");
+            
+            carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
+        };
+
+        window.reimprimirOrcamentoHistorico = (id) => {
+            const o = orcamentos.find(x => x.id === id);
+            if(o) dispararImpressao(o, "ORÇAMENTO DE VENDA (REIMPRESSÃO)");
+        };
+
+        window.deletarOrcamento = async (id) => {
+            if(confirm("Deseja realmente apagar este orçamento salvo?")) {
+                await deleteDoc(doc(db, "orcamentos", id));
+                carregarDadosIniciais();
+            }
+        };
+
+        window.renderOrcamentos = (listaOrcamentos) => {
+            const corpo = document.getElementById('corpoOrcamentos');
+            if(!corpo) return;
+            corpo.innerHTML = listaOrcamentos.map(o => `
+                <tr class="border-b border-white/5">
+                    <td class="py-3 text-[10px] opacity-60">${new Date(o.data).toLocaleDateString('pt-BR')}</td>
+                    <td class="font-bold uppercase">${o.cliente}</td>
+                    <td class="text-right text-cyan-400 font-black">R$ ${o.total.toFixed(2)}</td>
+                    <td class="text-right whitespace-nowrap">
+                        <button onclick="reimprimirOrcamentoHistorico('${o.id}')" class="text-cyan-400 mr-4 opacity-70 hover:opacity-100" title="Reimprimir"><i class="fas fa-print"></i></button>
+                        <button onclick="deletarOrcamento('${o.id}')" class="text-red-500 opacity-40 hover:opacity-100" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        window.filtrarOrcamentos = () => {
+            const termo = document.getElementById('buscaOrcamentoCliente').value.toLowerCase();
+            const filtrados = orcamentos.filter(o => o.cliente.toLowerCase().includes(termo));
+            renderOrcamentos(filtrados);
         };
 
         window.imprimirRelatorioEstoque = () => {
@@ -362,10 +443,10 @@
             document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td><td class="text-center">${p.qtd}</td><td class="text-right">R$ ${p.preco.toFixed(2)}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoProd('${p.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoCli('${c.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            document.getElementById('pdvSelect').innerHTML = produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
             document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
             document.getElementById('dash-estoque-count').innerText = produtos.length; document.getElementById('dash-clientes-count').innerText = clientes.length;
             renderFinanceiro(vendas);
+            renderOrcamentos(orcamentos);
         }
 
         function limparForms() { document.querySelectorAll('input').forEach(i => i.value = ''); document.getElementById('editProdId').value = ""; document.getElementById('editCliId').value = ""; document.getElementById('btnSalvarProd').innerText = "Salvar"; document.getElementById('btnSalvarCli').innerText = "Salvar Cliente"; }
@@ -386,6 +467,13 @@
             document.getElementById('cliCpf').value = c.cpf || ''; document.getElementById('cliEndereco').value = c.endereco || '';
             document.getElementById('btnSalvarCli').innerText = "Atualizar Cliente";
         };
+
+        // Fechar busca de produto se clicar fora do campo
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#pdvBuscaProduto') && !e.target.closest('#pdvResultadosBusca')) {
+                document.getElementById('pdvResultadosBusca').classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
