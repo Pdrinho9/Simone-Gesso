@@ -94,7 +94,7 @@
                         </div>
                         <div class="grid grid-cols-3 gap-3 items-end">
                             <div><label class="text-[9px] opacity-50 mb-1 block uppercase text-blue-400 font-bold">Preço Unitário (R$)</label><input type="number" id="pdvPrecoUnit" step="0.01" class="w-full"></div>
-                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdv稳Qtd" value="1" min="1" id="pdvQtd" class="w-full text-center"></div>
+                            <div><label class="text-[9px] opacity-50 mb-1 block uppercase">Qtd</label><input type="number" id="pdvQtd" value="1" min="1" class="w-full text-center"></div>
                             <button onclick="handleAdicionarAoCarrinho()" class="bg-blue-600 py-3 font-black uppercase text-[10px] rounded-lg">Inserir no Carrinho</button>
                         </div>
                         <table class="w-full text-[11px] mt-2"><thead><tr class="opacity-30 text-left border-b border-white/10"><th class="pb-2">Item</th><th class="pb-2 text-center">Preço</th><th class="pb-2 text-center">Qtd</th><th class="pb-2 text-right">Subtotal</th><th></th></tr></thead><tbody id="carrinhoItens"></tbody></table>
@@ -171,7 +171,10 @@
                 <section id="tab-estoque" class="tab-content hidden glass p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-lg font-black uppercase">Controle de Estoque</h2>
-                        <button onclick="imprimirRelatorioEstoque()" class="bg-gray-600 px-4 py-2 rounded-lg font-bold uppercase text-[10px] hover:bg-gray-500"><i class="fas fa-print mr-2"></i>Imprimir Relatório</button>
+                        <div class="flex gap-3 items-center">
+                            <input type="text" id="buscaEstoqueProduto" placeholder="Pesquisar produto..." oninput="window.filtrarEstoque()" class="w-48">
+                            <button onclick="imprimirRelatorioEstoque()" class="bg-gray-600 px-4 py-2 rounded-lg font-bold uppercase text-[10px] hover:bg-gray-500"><i class="fas fa-print mr-2"></i>Imprimir Relatório</button>
+                        </div>
                     </div>
                     <div class="grid grid-cols-3 gap-3 mb-6">
                         <input type="hidden" id="editProdId"><input type="text" id="estNome" placeholder="Nome do Produto"><input type="number" id="estQtd" placeholder="Qtd">
@@ -254,7 +257,7 @@
         window.handleAdicionarAoCarrinho = () => { 
             const pId = document.getElementById('pdvSelect').value;
             const p = produtos.find(i => i.id === pId); 
-            const q = parseInt(document.getElementById('pdvQtd').value); 
+            const q = parseInt(document.getElementById('pdvQtd').value) || 1; 
             const precoManual = parseFloat(document.getElementById('pdvPrecoUnit').value) || 0;
             if(p && p.qtd >= q) { 
                 carrinho.push({ id: p.id, nome: p.nome, preco: precoManual, qtdVenda: q, subtotal: precoManual * q}); 
@@ -338,14 +341,10 @@
             const o = orcamentos.find(x => x.id === id);
             if (!o) return;
             
-            // Define o cliente do orçamento no select do PDV
             document.getElementById('pdvCliente').value = o.cliente;
-            // Define o valor do frete original
             document.getElementById('pdvFrete').value = o.frete || 0;
-            // Preenche o carrinho temporário com os itens do orçamento
             carrinho = [...o.itens];
             
-            // Renderiza e muda de aba
             renderCarrinho();
             window.showTab('pdv');
             alert(`Orçamento de ${o.cliente} carregado no PDV! Você pode alterar e salvar como venda ou gerar um novo orçamento.`);
@@ -379,6 +378,26 @@
             const termo = document.getElementById('buscaOrcamentoCliente').value.toLowerCase();
             const filtrados = orcamentos.filter(o => o.cliente.toLowerCase().includes(termo));
             renderOrcamentos(filtrados);
+        };
+
+        window.filtrarEstoque = () => {
+            const termo = document.getElementById('buscaEstoqueProduto').value.toLowerCase();
+            const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo));
+            window.renderTabelaEstoque(filtrados);
+        };
+
+        window.renderTabelaEstoque = (listaProdutos) => {
+            document.getElementById('corpoEstoque').innerHTML = listaProdutos.map(p => `
+                <tr class="border-b border-white/5">
+                    <td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td>
+                    <td class="text-center">${p.qtd}</td>
+                    <td class="text-right">R$ ${p.preco.toFixed(2)}</td>
+                    <td class="text-right whitespace-nowrap">
+                        <button onclick="prepararEdicaoProd('${p.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button>
+                        <button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
         };
 
         window.imprimirRelatorioEstoque = () => {
@@ -458,7 +477,7 @@
         window.handleDeletar = async (col, id) => { if(confirm("Excluir registro?")) { await deleteDoc(doc(db, col, id)); carregarDadosIniciais(); } };
 
         function renderTudo() {
-            document.getElementById('corpoEstoque').innerHTML = produtos.map(p => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] font-bold uppercase">${p.nome}</td><td class="text-center">${p.qtd}</td><td class="text-right">R$ ${p.preco.toFixed(2)}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoProd('${p.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('produtos', '${p.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+            window.renderTabelaEstoque(produtos);
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoCli('${c.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
             document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
@@ -486,7 +505,6 @@
             document.getElementById('btnSalvarCli').innerText = "Atualizar Cliente";
         };
 
-        // Fechar busca de produto se clicar fora do campo
         document.addEventListener('click', (e) => {
             if (!e.target.closest('#pdvBuscaProduto') && !e.target.closest('#pdvResultadosBusca')) {
                 document.getElementById('pdvResultadosBusca').classList.add('hidden');
