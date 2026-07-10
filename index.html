@@ -104,6 +104,9 @@
                             <p class="text-[9px] uppercase font-bold opacity-50 mb-1 text-blue-400">Total da Venda</p>
                             <h2 class="text-4xl font-black mb-4 tracking-tighter">R$ <span id="pdvTotal">0,00</span></h2>
                             
+                            <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-red-400">Desconto (R$)</label>
+                            <input type="number" id="pdvDesconto" value="0" min="0" step="0.01" oninput="renderCarrinho()" class="w-full mb-3">
+
                             <label class="text-[9px] opacity-50 mb-1 block uppercase font-bold text-yellow-500">Valor do Frete (R$)</label>
                             <input type="number" id="pdvFrete" value="0" oninput="renderCarrinho()" class="w-full mb-3">
                             
@@ -163,7 +166,7 @@
                         <button onclick="window.limparFiltroData()" class="bg-white/10 px-4 h-[38px] rounded-lg font-bold text-[10px] uppercase hover:bg-white/20 transition-all">Limpar</button>
                     </div>
                     <table class="w-full text-left text-xs">
-                        <thead><tr class="opacity-40 uppercase text-[9px] border-b border-white/10"><th class="pb-3">Data</th><th class="pb-3">Cliente</th><th class="pb-3">Pagamento</th><th class="pb-3 text-right">Valor</th><th class="pb-3 text-right">Ações</th></tr></thead>
+                        <thead><tr class="opacity-40 uppercase text-[9px] border-b border-white/10"><th class="pb-3">Data</th><th class="pb-3">Cliente</th><th class="pb-3">Itens Vendidos</th><th class="pb-3">Pagamento</th><th class="pb-3 text-right">Valor</th><th class="pb-3 text-right">Ações</th></tr></thead>
                         <tbody id="corpoFinanceiro"></tbody>
                     </table>
                 </section>
@@ -270,17 +273,22 @@
         };
 
         window.renderCarrinho = () => { 
-            let t = 0; let f = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            let t = 0; 
+            let f = parseFloat(document.getElementById('pdvFrete').value) || 0;
+            let d = parseFloat(document.getElementById('pdvDesconto').value) || 0;
             document.getElementById('carrinhoItens').innerHTML = carrinho.map((c, i) => { 
                 t += c.subtotal; return `<tr class="border-b border-white/5"><td class="py-2 text-blue-300 font-bold uppercase">${c.nome}</td><td class="text-center">R$ ${c.preco.toFixed(2)}</td><td class="text-center">${c.qtdVenda}</td><td class="text-right font-bold">R$ ${c.subtotal.toFixed(2)}</td><td class="text-right"><button onclick="removerDoCarrinho(${i})" class="text-red-500 p-1"><i class="fas fa-trash"></i></button></td></tr>`; 
             }).join(''); 
-            document.getElementById('pdvTotal').innerText = (t + f).toFixed(2).replace('.', ','); 
+            let valorFinal = (t + f) - d;
+            if(valorFinal < 0) valorFinal = 0;
+            document.getElementById('pdvTotal').innerText = valorFinal.toFixed(2).replace('.', ','); 
         };
 
         window.handleFinalizarVenda = async () => {
             if(carrinho.length === 0) return;
             const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
-            const totalCores = carrinho.reduce((a,b)=>a+b.subtotal,0) + frete;
+            const desconto = parseFloat(document.getElementById('pdvDesconto').value) || 0;
+            const totalCores = (carrinho.reduce((a,b)=>a+b.subtotal,0) + frete) - desconto;
             
             let formaPagamentoStr = document.getElementById('pdvPagamento').value;
             if(formaPagamentoStr === 'Misto') {
@@ -289,7 +297,7 @@
                 formaPagamentoStr = `Misto (Din: R$ ${din.toFixed(2)} + Cart: R$ ${cart.toFixed(2)})`;
             }
 
-            const v = { cliente: document.getElementById('pdvCliente').value, total: totalCores, frete: frete, pagamento: formaPagamentoStr, itens: [...carrinho], data: new Date().toISOString() };
+            const v = { cliente: document.getElementById('pdvCliente').value, total: totalCores < 0 ? 0 : totalCores, frete: frete, desconto: desconto, pagamento: formaPagamentoStr, itens: [...carrinho], data: new Date().toISOString() };
             await addDoc(collection(db, "vendas"), v);
             for(let i of carrinho) {
                 const pDoc = produtos.find(p => p.id === i.id);
@@ -298,8 +306,22 @@
             ultimaVendaSalva = v; 
             document.getElementById('btnWhatsapp').style.display = 'block';
             dispararImpressao(v, "COMPROVANTE DE VENDA");
-            carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
-            document.getElementById('pdvPagamento').value = 'Pix'; togglePagamentoMisto();
+            
+            // RESETANDO O PDV PARA DEIXAR EM BRANCO PARA UMA NOVA VENDA
+            carrinho = []; 
+            document.getElementById('pdvFrete').value = 0; 
+            document.getElementById('pdvDesconto').value = 0; 
+            document.getElementById('pdvSelect').value = '';
+            document.getElementById('pdvBuscaProduto').value = '';
+            document.getElementById('pdvPrecoUnit').value = '';
+            document.getElementById('pdvQtd').value = '1';
+            document.getElementById('pdvPagamento').value = 'Pix'; 
+            document.getElementById('mistoDinheiro').value = 0;
+            document.getElementById('mistoCartao').value = 0;
+            togglePagamentoMisto();
+            renderCarrinho();
+            
+            carregarDadosIniciais();
         };
 
         function dispararImpressao(venda, titulo) {
@@ -314,6 +336,7 @@
                     <tbody>${venda.itens.map(i => `<tr><td style="padding: 4px 0;">${i.nome}</td><td align="center">${i.qtdVenda}</td><td align="center">R$ ${i.preco.toFixed(2)}</td><td align="right">R$ ${i.subtotal.toFixed(2)}</td></tr>`).join('')}</tbody>
                 </table>
                 <hr>
+                ${venda.desconto > 0 ? `<p align="right" style="font-size:11px">Desconto: R$ ${venda.desconto.toFixed(2)}</p>` : ''}
                 <p align="right" style="font-size:11px">Frete: R$ ${venda.frete.toFixed(2)}</p>
                 <p align="right" style="font-size:14px"><b>TOTAL: R$ ${venda.total.toFixed(2)}</b></p>
             `;
@@ -324,12 +347,18 @@
         window.salvarEImprimirOrcamento = async () => {
             if(carrinho.length === 0) return alert("Adicione itens ao carrinho primeiro!");
             const frete = parseFloat(document.getElementById('pdvFrete').value) || 0;
-            const tempOrcamento = { cliente: document.getElementById('pdvCliente').value, total: carrinho.reduce((a,b)=>a+b.subtotal,0) + frete, frete: frete, itens: [...carrinho], data: new Date().toISOString() };
+            const desconto = parseFloat(document.getElementById('pdvDesconto').value) || 0;
+            const totalOrc = (carrinho.reduce((a,b)=>a+b.subtotal,0) + frete) - desconto;
+            const tempOrcamento = { cliente: document.getElementById('pdvCliente').value, total: totalOrc < 0 ? 0 : totalOrc, frete: frete, desconto: desconto, itens: [...carrinho], data: new Date().toISOString() };
             
             await addDoc(collection(db, "orcamentos"), tempOrcamento);
             dispararImpressao(tempOrcamento, "ORÇAMENTO DE VENDA");
             
-            carrinho = []; document.getElementById('pdvFrete').value = 0; carregarDadosIniciais();
+            carrinho = []; 
+            document.getElementById('pdvFrete').value = 0; 
+            document.getElementById('pdvDesconto').value = 0;
+            renderCarrinho();
+            carregarDadosIniciais();
         };
 
         window.reimprimirOrcamentoHistorico = (id) => {
@@ -343,6 +372,7 @@
             
             document.getElementById('pdvCliente').value = o.cliente;
             document.getElementById('pdvFrete').value = o.frete || 0;
+            document.getElementById('pdvDesconto').value = o.desconto || 0;
             carrinho = [...o.itens];
             
             renderCarrinho();
@@ -418,6 +448,7 @@
             if(!c || !c.whats) return alert("Cliente não encontrado ou sem WhatsApp!");
             let msg = `*PLAC DRYWALL*\n\nOlá ${c.nome}, segue seu comprovante:\n\n`;
             ultimaVendaSalva.itens.forEach(i => msg += `- ${i.nome} (Qtd: ${i.qtdVenda} x R$ ${i.preco.toFixed(2)})\n`);
+            if(ultimaVendaSalva.desconto > 0) msg += `*Desconto:* R$ ${ultimaVendaSalva.desconto.toFixed(2)}\n`;
             if(ultimaVendaSalva.frete > 0) msg += `*Frete:* R$ ${ultimaVendaSalva.frete.toFixed(2)}\n`;
             msg += `\n*Total:* R$ ${ultimaVendaSalva.total.toFixed(2)}\n*Pagamento:* ${ultimaVendaSalva.pagamento}\n\n*OBSERVAÇÕES:*\n- Cálculo aproximado, não nos responsabilizamos por sobras e faltas.\n- Distância para descarregar máxima de 10m do caminhão.`;
             window.open(`https://wa.me/55${c.whats.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
@@ -428,7 +459,9 @@
             if(!corpo) return;
             corpo.innerHTML = listaVendas.map(v => { 
                 total += v.total; 
-                return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-[9px] opacity-70">${v.pagamento}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
+                // MAPEAR STRING DOS ITENS VENDIDOS PARA O NOVO CAMPO SOLICITADO
+                let textoItens = v.itens ? v.itens.map(i => `${i.qtdVenda}x ${i.nome}`).join(', ') : '---';
+                return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-[11px] text-blue-300 max-w-xs truncate" title="${textoItens}">${textoItens}</td><td class="text-[9px] opacity-70">${v.pagamento}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
             }).join('');
             document.getElementById('fin-total-geral').innerText = "R$ " + total.toFixed(2).replace('.', ',');
         };
