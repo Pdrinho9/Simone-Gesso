@@ -58,7 +58,7 @@
                 <button onclick="showTab('dashboard')" id="btn-dashboard" class="nav-btn active-tab"><i class="fas fa-home mr-3 text-blue-400"></i> Início</button>
                 <button onclick="showTab('pdv')" id="btn-pdv" class="nav-btn"><i class="fas fa-shopping-bag mr-3 text-yellow-400"></i> PDV / Vendas</button>
                 <button onclick="showTab('orcamentos_salvos')" id="btn-orcamentos_salvos" class="nav-btn"><i class="fas fa-file-alt mr-3 text-cyan-400"></i> Orçamentos</button>
-                <button onclick="showTab('financeiro')" id="btn-financeiro" class="nav-btn"><i class="fas fa-wallet mr-3 text-green-400"></i> Financeiro</button>
+                <button onclick="showTab('financeiro')" id="btn-financeiro" class="nav-btn"><i class="fas fa-wallet mr-3 text-green-400"></i> Financeiro <i class="fas fa-lock ml-auto text-[10px] opacity-40"></i></button>
                 <button onclick="showTab('clientes')" id="btn-clientes" class="nav-btn"><i class="fas fa-user-friends mr-3 text-purple-400"></i> Clientes</button>
                 <button onclick="showTab('estoque')" id="btn-estoque" class="nav-btn"><i class="fas fa-box-open mr-3 text-orange-400"></i> Estoque</button>
             </nav>
@@ -75,7 +75,11 @@
                 
                 <section id="tab-dashboard" class="tab-content">
                     <div class="grid grid-cols-3 gap-4 mb-4">
-                        <div class="glass p-6 text-center border-b-4 border-blue-500"><p class="text-[9px] uppercase opacity-50 mb-1">Faturamento</p><h2 class="text-xl font-black" id="dash-vendas-total">R$ 0,00</h2></div>
+                        <div class="glass p-6 text-center border-b-4 border-blue-500 relative">
+                            <button onclick="toggleRevelarTotalDash()" class="absolute top-2 right-2 text-xs opacity-50 hover:opacity-100 p-1" title="Revelar/Ocultar Valor"><i id="icon-dash-val" class="fas fa-eye-slash"></i></button>
+                            <p class="text-[9px] uppercase opacity-50 mb-1">Faturamento</p>
+                            <h2 class="text-xl font-black" id="dash-vendas-total">R$ ***</h2>
+                        </div>
                         <div class="glass p-6 text-center border-b-4 border-purple-500"><p class="text-[9px] uppercase opacity-50 mb-1">Clientes</p><h2 class="text-xl font-black" id="dash-clientes-count">0</h2></div>
                         <div class="glass p-6 text-center border-b-4 border-orange-500"><p class="text-[9px] uppercase opacity-50 mb-1">Itens</p><h2 class="text-xl font-black" id="dash-estoque-count">0</h2></div>
                     </div>
@@ -206,9 +210,11 @@
         const firebaseConfig = { apiKey: "AIzaSyBBeL1Lbq71SfKoZQ4G26aZFPsiS5IFL9I", authDomain: "sistema-plac.firebaseapp.com", projectId: "sistema-plac", storageBucket: "sistema-plac.firebasestorage.app", messagingSenderId: "54513790116", appId: "1:54513790116:web:77d0722e5a8b8b10dfca31" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
+        const SENHA_SISTEMA = "123459";
         let produtos = [], clientes = [], vendas = [], orcamentos = [], carrinho = [], ultimaVendaSalva = null;
+        let dashTotalRevelado = false;
 
-        window.tentarLogin = () => { if(document.getElementById('passInput').value === "123456") { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else alert("Acesso Negado!"); };
+        window.tentarLogin = () => { if(document.getElementById('passInput').value === SENHA_SISTEMA) { document.getElementById('login-screen').style.display='none'; document.getElementById('app-content').style.display='flex'; carregarDadosIniciais(); window.showTab('dashboard'); } else alert("Acesso Negado!"); };
 
         async function carregarDadosIniciais() { 
             const pSnap = await getDocs(collection(db, "produtos")); produtos = pSnap.docs.map(d => ({ id: d.id, ...d.data() })); 
@@ -219,6 +225,14 @@
         }
 
         window.showTab = (tabId) => { 
+            if(tabId === 'financeiro') {
+                const pass = prompt("Digite a senha para acessar o Financeiro:");
+                if(pass !== SENHA_SISTEMA) {
+                    alert("Senha incorreta! Acesso negado.");
+                    return;
+                }
+            }
+
             document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden')); 
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById('tab-' + tabId).classList.remove('hidden'); 
@@ -227,6 +241,30 @@
             if(tabId === 'financeiro') renderFinanceiro(vendas); 
             if(tabId === 'orcamentos_salvos') renderOrcamentos(orcamentos);
         };
+
+        window.toggleRevelarTotalDash = () => {
+            if(!dashTotalRevelado) {
+                const pass = prompt("Digite a senha para visualizar o Faturamento:");
+                if(pass === SENHA_SISTEMA) {
+                    dashTotalRevelado = true;
+                    document.getElementById('icon-dash-val').className = "fas fa-eye";
+                } else {
+                    alert("Senha incorreta!");
+                    return;
+                }
+            } else {
+                dashTotalRevelado = false;
+                document.getElementById('icon-dash-val').className = "fas fa-eye-slash";
+            }
+            renderTotalDash();
+        };
+
+        function renderTotalDash() {
+            const total = vendas.reduce((a,b)=>a+b.total,0);
+            document.getElementById('dash-vendas-total').innerText = dashTotalRevelado 
+                ? "R$ " + total.toFixed(2).replace('.', ',') 
+                : "R$ ***";
+        }
 
         window.filtrarBuscaProduto = () => {
             const termo = document.getElementById('pdvBuscaProduto').value.toLowerCase();
@@ -307,7 +345,6 @@
             document.getElementById('btnWhatsapp').style.display = 'block';
             dispararImpressao(v, "COMPROVANTE DE VENDA");
             
-            // RESETANDO O PDV PARA DEIXAR EM BRANCO PARA UMA NOVA VENDA
             carrinho = []; 
             document.getElementById('pdvFrete').value = 0; 
             document.getElementById('pdvDesconto').value = 0; 
@@ -459,7 +496,6 @@
             if(!corpo) return;
             corpo.innerHTML = listaVendas.map(v => { 
                 total += v.total; 
-                // MAPEAR STRING DOS ITENS VENDIDOS PARA O NOVO CAMPO SOLICITADO
                 let textoItens = v.itens ? v.itens.map(i => `${i.qtdVenda}x ${i.nome}`).join(', ') : '---';
                 return `<tr class="border-b border-white/5"><td class="py-3 text-[10px] opacity-60">${new Date(v.data).toLocaleDateString('pt-BR')}</td><td class="font-bold uppercase">${v.cliente}</td><td class="text-[11px] text-blue-300 max-w-xs truncate" title="${textoItens}">${textoItens}</td><td class="text-[9px] opacity-70">${v.pagamento}</td><td class="text-right text-green-400 font-black">R$ ${v.total.toFixed(2)}</td><td class="text-right"><button onclick="estornarVenda('${v.id}')" class="text-red-500 p-2"><i class="fas fa-trash-alt"></i></button></td></tr>`; 
             }).join('');
@@ -513,8 +549,10 @@
             window.renderTabelaEstoque(produtos);
             document.getElementById('corpoClientes').innerHTML = clientes.map(c => `<tr class="border-b border-white/5"><td class="py-2 text-[11px] uppercase">${c.nome}</td><td class="text-center">${c.whats}</td><td class="text-right whitespace-nowrap"><button onclick="prepararEdicaoCli('${c.id}')" class="text-blue-400 mr-3 opacity-60 hover:opacity-100"><i class="fas fa-edit"></i></button><button onclick="handleDeletar('clientes', '${c.id}')" class="text-red-500 opacity-20 hover:opacity-100"><i class="fas fa-trash"></i></button></td></tr>`).join('');
             document.getElementById('pdvCliente').innerHTML = clientes.map(c => `<option value="${c.nome}">${c.nome}</option>`).join('');
-            document.getElementById('dash-vendas-total').innerText = "R$ " + vendas.reduce((a,b)=>a+b.total,0).toFixed(2).replace('.', ',');
-            document.getElementById('dash-estoque-count').innerText = produtos.length; document.getElementById('dash-clientes-count').innerText = clientes.length;
+            
+            renderTotalDash();
+            document.getElementById('dash-estoque-count').innerText = produtos.length; 
+            document.getElementById('dash-clientes-count').innerText = clientes.length;
             renderFinanceiro(vendas);
             renderOrcamentos(orcamentos);
         }
